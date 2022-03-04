@@ -25,9 +25,9 @@ rule tokenize = parse
 | newline       { lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokenize lexbuf; }
 // deal with tokens that need to be built
 | num           { NUM(Double.Parse(LexBuffer<_>.LexemeString lexbuf)) }
-| '*'           { TIMES }
+| '*'           { MULT }
 | '/'           { DIV }
-| '+'           { PLUS }
+| '+'           { ADD }
 | '-'           { MINUS }
 | '^'           { POW }
 | '('           { LPAR }

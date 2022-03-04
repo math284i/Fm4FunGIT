@@ -16,9 +16,9 @@ open Fm4FunLexer
 let rec eval e =
   match e with
     | Num(x) -> x
-    | TimesExpr(x,y) -> eval(x) * eval (y)
+    | MultExpr(x,y) -> eval(x) * eval (y)
     | DivExpr(x,y) -> eval(x) / eval (y)
-    | PlusExpr(x,y) -> eval(x) + eval (y)
+    | AddExpr(x,y) -> eval(x) + eval (y)
     | MinusExpr(x,y) -> eval(x) - eval (y)
     | PowExpr(x,y) -> eval(x) ** eval (y)
     | UPlusExpr(x) -> eval(x)

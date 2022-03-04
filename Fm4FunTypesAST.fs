@@ -4,9 +4,9 @@ module Fm4FunTypesAST
 
 type expr =
   | Num of float
-  | TimesExpr of (expr * expr)
+  | MultExpr of (expr * expr)
   | DivExpr of (expr * expr)
-  | PlusExpr of (expr * expr)
+  | AddExpr of (expr * expr)
   | MinusExpr of (expr * expr)
   | PowExpr of (expr * expr)
   | UPlusExpr of (expr)
