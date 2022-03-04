@@ -21,6 +21,7 @@ open Fm4FunTypesAST
 %token <> ALSO
 %token <> VARIABLE
 %token <> ARRAY
+%token <> ASSIGN
 %token <> TRUE
 %token <> FALSE
 %token <> AND
@@ -40,10 +41,18 @@ open Fm4FunTypesAST
 
 // Specify precedence and associativity of operators
 // Precedence is given by the order (from low to high)
+%right ASSIGN
+%left SCOR
+%left SCAND
+%left OR
+%left AND
+%left EQUALS NEQUALS
+%left LESS LOE GREATER GOE
 %left PLUS MINUS
 %left TIMES DIV
 %right POW
-
+%right NOT
+%left ARRAY
 
 // We declare the initial non-terminal symbol
 %start start

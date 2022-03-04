@@ -41,6 +41,7 @@ rule tokenize = parse
 | "[]"          { ALSO }
 | "x"           { VARIABLE }
 | "Array"       { ARRAY }
+| ":="          { ASSIGN }
 | "True"        { TRUE }
 | "False"       { FALSE }
 | '&'           { AND }
