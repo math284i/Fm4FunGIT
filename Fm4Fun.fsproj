@@ -7,7 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Program.fs"/>
+        <Compile Include="Program.fs" />
+        <None Include="Fm4fun.fsx" />
+        <Content Include="Fm4FunLexer.fsl" />
+        <Content Include="Fm4FunParser.fsp" />
+        <Compile Include="Fm4FunTypesAST.fs" />
     </ItemGroup>
 
 </Project>
