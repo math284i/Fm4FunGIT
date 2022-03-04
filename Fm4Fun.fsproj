@@ -7,11 +7,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Program.fs" />
         <None Include="Fm4fun.fsx" />
         <Content Include="Fm4FunLexer.fsl" />
         <Content Include="Fm4FunParser.fsp" />
         <Compile Include="Fm4FunTypesAST.fs" />
+        <Content Include="FsLexYacc.Runtime.10.0.0\lib\netstandard2.0\FsLexYacc.Runtime.xml" />
+        <Content Include="FsLexYacc.Runtime.10.0.0\lib\netstandard2.0\FsLexYacc.Runtime.dll" />
+        <Content Include="FsLexYacc.Runtime.10.0.0\lib\net46\FsLexYacc.Runtime.xml" />
+        <Content Include="FsLexYacc.Runtime.10.0.0\lib\net46\FsLexYacc.Runtime.dll" />
+        <Content Include="FsLexYacc.Runtime.10.0.0\FsLexYacc.Runtime.10.0.0.nupkg" />
+        <Content Include="FsLexYacc.Runtime.10.0.0\.signature.p7s" />
     </ItemGroup>
 
 </Project>
