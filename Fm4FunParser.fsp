@@ -20,8 +20,11 @@ open Fm4FunTypesAST
 %start start
 
 // We specify the return type of each of then non-terminal symbols
-%type <expr> start
-%type <expr> expression
+%type <Cexpr> start
+%type <Cexpr> command
+%type <Cexpr> guarded
+%type <Aexpr> aExpression
+%type <Bexpr> bExpression
 
 // Grammar productions
 %%
@@ -29,7 +32,7 @@ open Fm4FunTypesAST
 // The first production in "formal" notation is
 // start -> expression
 // here written:
-start: expression EOF             { $1 }
+start: command EOF             { $1 }
 
 // Note that we need to insert an End-Of-File (EOF)
 // The code annotation { $1 } specifies that parsing with this production
@@ -46,43 +49,43 @@ start: expression EOF             { $1 }
 //b ::= true | false | b & b | b | b | b && b | b || b | !b | a = a | a != a | a > a | a >= a | a < a | a <= a | (b)
 
 command:
-    | VARIABLE ASSIGN aExpression   {  }
-    | ARRAY ASSIGN aExpression      {  }
-    | SKIP                          {  }
-    | command SC command            {  }
-    | IF guarded                    {  }
-    | DO guarded                    {  }
+    | VARIABLE ASSIGN aExpression                   { AssignExpr($1,$3) }
+    | ARRAY aExpression ASSIGN aExpression          { AssignToArrExpr($1,$2,$4) }
+    | SKIP                                          { SkipExpr() }
+    | command SC command                            { AlsoExpr($1,$3) }
+    | IF guarded FI                                 { IfExpr($2) }
+    | DO guarded OD                                 { DoExpr($2) }
 
 guarded:
-    | bExpression ARROW command     {  }
-    | guarded ALSO guarded          {  }
+    | bExpression ARROW command         { ArrowExpr($1,$3) }
+    | guarded ALSO guarded              { AlsoExpr($1,$3) }
 
 aExpression:
-  | aExpression MULT aExpression    { MultExpr($1,$3) }
-  | aExpression DIV aExpression     { DivExpr($1,$3) }
-  | aExpression ADD aExpression     { AddExpr($1,$3) }
-  | aExpression MINUS aExpression   { MinusExpr($1,$3) }
-  | aExpression POW aExpression     { PowExpr($1,$3) }
-  | MINUS aExpression               { UMinusExpr($2) }
-  | NUM                             { Num($1) }
-  | VARIABLE                        {  }
-  | ARRAY                           {  }
-  | LPAR aExpression RPAR           { $2 }
+  | aExpression MULT aExpression        { MultExpr($1,$3) }
+  | aExpression DIV aExpression         { DivExpr($1,$3) }
+  | aExpression ADD aExpression         { AddExpr($1,$3) }
+  | aExpression MINUS aExpression       { MinusExpr($1,$3) }
+  | aExpression POW aExpression         { PowExpr($1,$3) }
+  | MINUS aExpression                   { UMinusExpr($2) }
+  | NUM                                 { Num($1) }
+  | VARIABLE                            { Var($1) }
+  | ARRAY aExpression                   { ArrEntry($1,$2) }
+  | LPAR aExpression RPAR               { $2 }
 
 bExpression:
-    | TRUE                          {  }
-    | FALSE                         {  }
-    | bExpression AND bExpression   {  }
-    | bExpression OR bExpression    {  }
-    | bExpression SCAND bExpression {  }
-    | bExpression SCOR bExpression  {  }
-    | NOT bExpression               {  }
-    | aExpression EQUALS aExpression    {  }
-    | aExpression NEQUALS aExpression   {  }
-    | aExpression GREATER aExpression   {  }
-    | aExpression GOE aExpression       {  } //Greater or equal
-    | aExpression LESS aExpression      {  }
-    | aExpression LOE aExpression       {  } //Less or equal
+    | TRUE                              { B($1) }
+    | FALSE                             { B($1) }
+    | bExpression AND bExpression       { AndExpr($1,$3) }
+    | bExpression OR bExpression        { OrExpr($1,$3) }
+    | bExpression SCAND bExpression     { ScAndExpr($1,$3) } //Short circuit and
+    | bExpression SCOR bExpression      { ScOrExpr($1,$3 } // -||- or
+    | NOT bExpression                   { NotExpr($2) }
+    | aExpression EQUALS aExpression    { EqualExpr($1,$3) }
+    | aExpression NEQUALS aExpression   { NotEqualExpr($1,$3) }
+    | aExpression GREATER aExpression   { GreaterThanExpr($1,$3) }
+    | aExpression GOE aExpression       { GreaterOrEqualExpr($1,$3) } //Greater or equal
+    | aExpression LESS aExpression      { LessThanExpr($1,$3) }
+    | aExpression LOE aExpression       { LessOrEqualExpr($1,$3) } //Less or equal
     | LPAR bExpression RPAR             { $2 }
   
 
