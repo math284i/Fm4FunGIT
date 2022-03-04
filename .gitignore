@@ -11,3 +11,7 @@ workspace.xml
 .signature.p7s
 FsLexYacc.Runtime.10.0.0.nupkg
 FsLexYacc.*
+Fm4FunParser.fs
+Fm4FunParser.fsi
+Fm4funLexer.fs
+FSharp.Core.*
