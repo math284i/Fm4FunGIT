@@ -15,8 +15,11 @@
         <Content Include="FsLexYacc.Runtime.10.0.0\lib\netstandard2.0\FsLexYacc.Runtime.dll" />
         <Content Include="FsLexYacc.Runtime.10.0.0\lib\net46\FsLexYacc.Runtime.xml" />
         <Content Include="FsLexYacc.Runtime.10.0.0\lib\net46\FsLexYacc.Runtime.dll" />
-        <Content Include="FsLexYacc.Runtime.10.0.0\FsLexYacc.Runtime.10.0.0.nupkg" />
+        <Content Include="FsLexYacc.Runtime.10.0.0\fslexyacc.runtime.nuspec" />
+        <Content Include="FsLexYacc.Runtime.10.0.0\fslexyacc.runtime.10.0.0.nupkg.sha512" />
+        <Content Include="FsLexYacc.Runtime.10.0.0\fslexyacc.runtime.10.0.0.nupkg" />
         <Content Include="FsLexYacc.Runtime.10.0.0\.signature.p7s" />
+        <Content Include="FsLexYacc.Runtime.10.0.0\.nupkg.metadata" />
     </ItemGroup>
 
 </Project>

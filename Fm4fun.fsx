@@ -21,7 +21,6 @@ let rec eval e =
     | AddExpr(x,y) -> eval(x) + eval (y)
     | MinusExpr(x,y) -> eval(x) - eval (y)
     | PowExpr(x,y) -> eval(x) ** eval (y)
-    | UPlusExpr(x) -> eval(x)
     | UMinusExpr(x) -> - eval(x)
 
 // We
