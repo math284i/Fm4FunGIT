@@ -5,7 +5,36 @@ open Fm4FunTypesAST
 
 // Declare the tokens (terminal symbols)
 %token <float> NUM
-%token TIMES DIV PLUS MINUS POW LPAR RPAR EOF
+%token <> MULT 
+%token <> DIV 
+%token <> ADD 
+%token <> MINUS 
+%token <> POW 
+%token <> LPAR 
+%token <> RPAR 
+%token <> EOF 
+%token <> SKIP
+%token <> SC
+%token <> IF
+%token <> DO
+%token <> ARROW
+%token <> ALSO
+%token <> VARIABLE
+%token <> ARRAY
+%token <> TRUE
+%token <> FALSE
+%token <> AND
+%token <> OR
+%token <> SCAND
+%token <> SCOR
+%token <> NOT
+%token <> EQUALS
+%token <> NEQUALS
+%token <> GREATER
+%token <> GOE
+%token <> LESS
+%token <> LOE
+
 // NOTE: the actual formats of these tokens are defined in the lexer file
 //       as regular expressions
 
