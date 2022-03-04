@@ -29,7 +29,7 @@ let parse input =
     // translate string into a buffer of characters
     let lexbuf = LexBuffer<char>.FromString input
     // translate the buffer into a stream of tokens and parse them
-    let res = Fm4FunParser.start CalculatorLexer.tokenize lexbuf
+    let res = Fm4FunParser.start Fm4FunLexer.tokenize lexbuf
     // return the result of parsing (i.e. value of type "expr")
     res
 
