@@ -13,15 +13,58 @@ open Fm4FunLexer
 
 // We define the evaluation function recursively, by induction on the structure
 // of arithmetic expressions (AST of type expr)
-let rec eval e =
+
+let variablesArray = []
+
+let rec variableHelper str arr =
+    match arr with
+    | []                     -> failwith "Undefined variable"
+    | (x,y)::xs when x = str -> y
+    | x::xs                  -> variableHelper str xs
+
+
+
+
+let rec evalA e =
   match e with
     | Num(x) -> x
-    | MultExpr(x,y) -> eval(x) * eval (y)
-    | DivExpr(x,y) -> eval(x) / eval (y)
-    | AddExpr(x,y) -> eval(x) + eval (y)
-    | MinusExpr(x,y) -> eval(x) - eval (y)
-    | PowExpr(x,y) -> eval(x) ** eval (y)
-    | UMinusExpr(x) -> - eval(x)
+    | Var(x) -> variableHelper x variablesArray
+    | ArrEntry (a, b) -> 0.0
+    | MultExpr(x,y) -> evalA(x) * evalA (y)
+    | DivExpr(x,y) -> evalA(x) / evalA (y)
+    | AddExpr(x,y) -> evalA(x) + evalA (y)
+    | MinusExpr(x,y) -> evalA(x) - evalA (y)
+    | PowExpr(x,y) -> evalA(x) ** evalA (y)
+    | UMinusExpr(x) -> - evalA(x)
+    
+let rec evalB e =
+    match e with
+    | B(x) -> x
+    | AndExpr(x, y)             -> (evalB x) && (evalB y)
+    | OrExpr(x, y)              -> evalB x || evalB y
+    | ScAndExpr(x, y)           -> evalB x && evalB y
+    | ScOrExpr(x, y)            -> evalB x || evalB y
+    | NotExpr(x)                -> not (evalB x)
+    | EqualExpr(x, y)           -> evalA x = evalA y
+    | NotEqualExpr(x, y)        -> not (evalA x = evalA y)
+    | GreaterThanExpr(x, y)     -> evalA x > evalA y
+    | GreaterOrEqualExpr(x, y)  -> evalA x >= evalA y
+    | LessThanExpr(x, y)        -> evalA x < evalA y
+    | LessOrEqualExpr(x, y)     -> evalA x <= evalA y
+    
+let rec evalC e =
+    match e with
+    | AssignExpr(str, a)            -> variablesArray@[(str, evalA a)]
+    | AssignToArrExpr(arr, a, b)    -> variablesArray
+    | SkipExpr                      -> variablesArray
+    | DoubleExpr(a, b)              -> evalC a@evalC b
+    | IfExpr(a)                     -> variablesArray
+    | DoExpr(a)                     -> variablesArray
+
+let rec evalGC e =
+    match e with
+    | ArrowExpr(b, c)       -> if (evalB b) then evalC c else variablesArray
+    | AlsoExpr(a, b)        -> evalGC a@evalGC b
 
 // We
 let parse input =
@@ -42,7 +85,7 @@ let rec compute n =
         // We parse the input string
         let e = parse (Console.ReadLine())
         // and print the result of evaluating it
-        printfn "Result: %f" (eval(e))
+        printfn "Result: %f" (evalA(e))
         compute n
         with err -> compute (n-1)
 

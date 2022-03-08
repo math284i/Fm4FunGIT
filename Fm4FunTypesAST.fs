@@ -2,11 +2,10 @@
 // to store represent arithmetic expressions
 module Fm4FunTypesAST
 
-type Variable = String
 type Array = Aexpr List
 and Aexpr =
   | Num of float
-  | Var of Variable
+  | Var of string
   | ArrEntry of (Array*Aexpr)
   | MultExpr of (Aexpr * Aexpr)
   | DivExpr of (Aexpr * Aexpr)
@@ -30,10 +29,10 @@ type Bexpr =
   | LessOrEqualExpr of (Aexpr*Aexpr)
   
 type Cexpr =
-  | AssignExpr of (Variable*Aexpr)
+  | AssignExpr of (string*Aexpr)
   | AssignToArrExpr of (Array*Aexpr*Aexpr)
   | SkipExpr
-  | AlsoExpr of (Cexpr*Cexpr)
+  | DoubleExpr of (Cexpr*Cexpr)
   | IfExpr of GuardedExpr
   | DoExpr of GuardedExpr
 and GuardedExpr =

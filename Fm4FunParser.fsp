@@ -90,7 +90,7 @@ command:
     | VARIABLE ASSIGN aExpression                   { AssignExpr($1,$3) }
     | ARRAY aExpression ASSIGN aExpression          { AssignToArrExpr($1,$2,$4) }
     | SKIP                                          { SkipExpr() }
-    | command SC command                            { AlsoExpr($1,$3) }
+    | command SC command                            { DoubleExpr($1,$3) }
     | IF guarded FI                                 { IfExpr($2) }
     | DO guarded OD                                 { DoExpr($2) }
 
