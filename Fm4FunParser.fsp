@@ -5,6 +5,8 @@ open Fm4FunTypesAST
 
 // Declare the tokens (terminal symbols)
 %token <float> NUM
+%token <string> STRING
+%token <> TRUE FALSE
 %token <> MULT 
 %token <> DIV 
 %token <> ADD 
@@ -14,16 +16,15 @@ open Fm4FunTypesAST
 %token <> RPAR 
 %token <> EOF 
 %token <> SKIP
-%token <> SC
+%token <> DOUBLE
 %token <> IF
 %token <> DO
 %token <> ARROW
 %token <> ALSO
 %token <> VARIABLE
-%token <> ARRAY
+%token <> LBRACK
+%token <> RBRACK
 %token <> ASSIGN
-%token <> TRUE
-%token <> FALSE
 %token <> AND
 %token <> OR
 %token <> SCAND
@@ -52,7 +53,6 @@ open Fm4FunTypesAST
 %left TIMES DIV
 %right POW
 %right NOT
-%left ARRAY
 
 // We declare the initial non-terminal symbol
 %start start
@@ -87,12 +87,12 @@ start: command EOF             { $1 }
 //b ::= true | false | b & b | b | b | b && b | b || b | !b | a = a | a != a | a > a | a >= a | a < a | a <= a | (b)
 
 command:
-    | VARIABLE ASSIGN aExpression                   { AssignExpr($1,$3) }
-    | ARRAY aExpression ASSIGN aExpression          { AssignToArrExpr($1,$2,$4) }
-    | SKIP                                          { SkipExpr() }
-    | command SC command                            { DoubleExpr($1,$3) }
-    | IF guarded FI                                 { IfExpr($2) }
-    | DO guarded OD                                 { DoExpr($2) }
+    | VARIABLE ASSIGN aExpression                           { AssignExpr($1,$3) }
+    | LBRACK string RBRACK aExpression ASSIGN aExpression   { AssignToArrExpr($2,$4,$6) }
+    | SKIP                                                  { SkipExpr() }
+    | command DOUBLE command                                { DoubleExpr($1,$3) }
+    | IF guarded FI                                         { IfExpr($2) }
+    | DO guarded OD                                         { DoExpr($2) }
 
 guarded:
     | bExpression ARROW command         { ArrowExpr($1,$3) }
@@ -107,12 +107,12 @@ aExpression:
   | MINUS aExpression                   { UMinusExpr($2) }
   | NUM                                 { Num($1) }
   | VARIABLE                            { Var($1) }
-  | ARRAY aExpression                   { ArrEntry($1,$2) }
+  | LBRACK string RBRACK aExpression    { ArrEntry($2,$4) }
   | LPAR aExpression RPAR               { $2 }
 
 bExpression:
-    | TRUE                              { B($1) }
-    | FALSE                             { B($1) }
+    | TRUE                              { True($1) }
+    | FALSE                             { False($1) }
     | bExpression AND bExpression       { AndExpr($1,$3) }
     | bExpression OR bExpression        { OrExpr($1,$3) }
     | bExpression SCAND bExpression     { ScAndExpr($1,$3) } //Short circuit and

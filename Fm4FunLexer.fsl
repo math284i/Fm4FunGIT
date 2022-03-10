@@ -11,6 +11,8 @@ System.Globalization.CultureInfo.CurrentCulture <- new System.Globalization.Cult
 
 // We define macros for some regular expressions we will use later
 let digit       = ['0'-'9']
+let char        = ['a'-'z' 'A'-'Z]
+let string      = char['a'-'z' 'A'-'Z' '_']
 let num         = digit+ ( '.' digit+)?  ('E' ('+'|'-')? digit+ )?
 let whitespace  = [' ' '\t']
 let newline     = "\n\r" | '\n' | '\r'
@@ -24,7 +26,10 @@ rule tokenize = parse
 | whitespace    { tokenize lexbuf }
 | newline       { lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokenize lexbuf; }
 // deal with tokens that need to be built
-| num           { NUM(Double.Parse(LexBuffer<_>.LexemeString lexbuf)) }
+| num           { NUM(int(LexBuffer<_>.LexemeString lexbuf)) }
+| bool          { BOOLEAN(Boolean.Parse(LexBuffer<_>.LexemeString lexbuf)) }
+| "True"        { TRUE }
+| "False"       { FALSE }
 | '*'           { MULT }
 | '/'           { DIV }
 | '+'           { ADD }
@@ -32,18 +37,16 @@ rule tokenize = parse
 | '^'           { POW }
 | '('           { LPAR }
 | ')'           { RPAR }
-| eof           { EOF }
 | "Skip"        { SKIP }
-| ';'           { SC }
+| ';'           { DOUBLE }
 | "If"          { IF }
 | "Do"          { DO }
 | "->"          { ARROW }
 | "[]"          { ALSO }
 | "x"           { VARIABLE }
-| "Array"       { ARRAY }
+| '['           { LBRACK }
+| ']'           { RBRACK }
 | ":="          { ASSIGN }
-| "True"        { TRUE }
-| "False"       { FALSE }
 | '&'           { AND }
 | '|'           { OR }
 | "&&"          { SCAND }
@@ -55,3 +58,5 @@ rule tokenize = parse
 | ">="          { GOE }
 | '<'           { LESS }
 | "<="          { LOE }
+| string        { STRING(LexBuffer<_>.LexemeString lexbuf) }
+| eof           { EOF }

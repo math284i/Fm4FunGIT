@@ -22,9 +22,7 @@ let rec variableHelper str arr =
     | (x,y)::xs when x = str -> y
     | x::xs                  -> variableHelper str xs
 
-
-
-
+(*
 let rec evalA e =
   match e with
     | Num(x) -> x
@@ -36,7 +34,22 @@ let rec evalA e =
     | MinusExpr(x,y) -> evalA(x) - evalA (y)
     | PowExpr(x,y) -> evalA(x) ** evalA (y)
     | UMinusExpr(x) -> - evalA(x)
-    
+
+*)
+
+let rec evalA e =
+  match e with
+    | Num(x) -> "NUM(" + (string) x + ")"
+    | Var(x) -> x
+    | ArrEntry (a, b) -> a + "LBRACK" + evalA b + "RBRACK"
+    | MultExpr(x,y) -> "MULT(" + evalA x + ", " + evalA (y) + ")"
+    | DivExpr(x,y) -> "DIV(" + evalA x + ", " + evalA (y) + ")"
+    | AddExpr(x,y) -> "ADD(" + evalA x + ", " + evalA y + ")"
+    | MinusExpr(x,y) -> "MINUS(" + evalA x + ", " + evalA y + ")"
+    | PowExpr(x,y) -> "POW(" + evalA x + ", " + evalA y + ")"
+    | UMinusExpr(x) -> "MINUS(" + evalA x + ")"
+
+(* 
 let rec evalB e =
     match e with
     | B(x) -> x
@@ -51,7 +64,24 @@ let rec evalB e =
     | GreaterOrEqualExpr(x, y)  -> evalA x >= evalA y
     | LessThanExpr(x, y)        -> evalA x < evalA y
     | LessOrEqualExpr(x, y)     -> evalA x <= evalA y
-    
+*)
+let rec evalB e =
+    match e with
+    | True(x) -> "TRUE"
+    | False(x) -> "FALSE"
+    | AndExpr(x, y)             -> "AND(" + evalB x + ", " + evalB y + ")"
+    | OrExpr(x, y)              -> "OR(" + evalB x + ", " + evalB y + ")"
+    | ScAndExpr(x, y)           -> "SCAND(" + evalB x + ", " + evalB y + ")"
+    | ScOrExpr(x, y)            -> "SCOR(" + evalB x + ", " + evalB y + ")"
+    | NotExpr(x)                -> "NOT(" + evalB x + ")"
+    | EqualExpr(x, y)           -> "EQUALS(" + evalA x + ", " + evalA y + ")"
+    | NotEqualExpr(x, y)        -> "NEQUALS(" + evalA x + ", " + evalA y + ")"
+    | GreaterThanExpr(x, y)     -> "GREATER(" + evalA x + ", " + evalA y + ")"
+    | GreaterOrEqualExpr(x, y)  -> "GOE(" + evalA x + ", " + evalA y + ")"
+    | LessThanExpr(x, y)        -> "LESS(" + evalA x + ", " +  evalA y + ")"
+    | LessOrEqualExpr(x, y)     -> "LOE(" + evalA x + ", " +  evalA y + ")"
+
+(*
 let rec evalC e =
     match e with
     | AssignExpr(str, a)            -> variablesArray@[(str, evalA a)]
@@ -60,13 +90,21 @@ let rec evalC e =
     | DoubleExpr(a, b)              -> evalC a@evalC b
     | IfExpr(a)                     -> variablesArray
     | DoExpr(a)                     -> variablesArray
+*)
 
-let rec evalGC e =
+let rec evalC e =
     match e with
-    | ArrowExpr(b, c)       -> if (evalB b) then evalC c else variablesArray
-    | AlsoExpr(a, b)        -> evalGC a@evalGC b
+    | AssignExpr(str, a)            -> "ASSIGN(" + str + ", " + evalA a + ")"
+    | AssignToArrExpr(str, a, b)    -> "ASSIGN(" + str + "LBRACK" + evalA a + "RBRACK" + evalA b + ")"
+    | SkipExpr                      -> "SKIP"
+    | DoubleExpr(a, b)              -> "DOUBLE(" + evalC a + ", " + evalC b + ")"
+    | IfExpr(a)                     -> "IF(" + evalGC a + ")"
+    | DoExpr(a)                     -> "DO(" + evalGC a + ")"
+and evalGC e =
+    match e with
+    | ArrowExpr(b, c)       -> "ARROW(" + evalB b + ", " + evalC c + ")"
+    | AlsoExpr(a, b)        -> "ALSO(" + evalGC a + ", " + evalGC b + ")"
 
-// We
 let parse input =
     // translate string into a buffer of characters
     let lexbuf = LexBuffer<char>.FromString input
@@ -85,7 +123,7 @@ let rec compute n =
         // We parse the input string
         let e = parse (Console.ReadLine())
         // and print the result of evaluating it
-        printfn "Result: %f" (evalA(e))
+        printfn "Result: %f" (evalC(e))
         compute n
         with err -> compute (n-1)
 

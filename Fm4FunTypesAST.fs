@@ -6,7 +6,7 @@ type Array = Aexpr List
 and Aexpr =
   | Num of float
   | Var of string
-  | ArrEntry of (Array*Aexpr)
+  | ArrEntry of (string*Aexpr)
   | MultExpr of (Aexpr * Aexpr)
   | DivExpr of (Aexpr * Aexpr)
   | AddExpr of (Aexpr * Aexpr)
@@ -15,7 +15,8 @@ and Aexpr =
   | UMinusExpr of (Aexpr)
 
 type Bexpr =
-  | B of bool
+  | True of bool
+  | False of bool
   | AndExpr of (Bexpr*Bexpr)
   | OrExpr of (Bexpr*Bexpr)
   | ScAndExpr of (Bexpr*Bexpr)
@@ -30,7 +31,7 @@ type Bexpr =
   
 type Cexpr =
   | AssignExpr of (string*Aexpr)
-  | AssignToArrExpr of (Array*Aexpr*Aexpr)
+  | AssignToArrExpr of (string*Aexpr*Aexpr)
   | SkipExpr
   | DoubleExpr of (Cexpr*Cexpr)
   | IfExpr of GuardedExpr
