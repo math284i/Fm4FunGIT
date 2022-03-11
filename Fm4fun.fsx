@@ -94,8 +94,8 @@ let rec evalC e =
 
 let rec edgesGC q1 q2 commando =
     match (commando) with
-    | AssignExpr (x,y) -> (q1,x + evalA y, q2)::[]
-    | AssignToArrExpr (x,a,b) -> (q1, x + evalA a + evalA b, q2)::[]
+    | AssignExpr (x,y)          -> (q1,x + evalA y, q2)::[]
+    | AssignToArrExpr (x,a,b)   -> (q1, x + evalA a + evalA b, q2)::[]
     
     
 and edgesC q1 q2 commando =
