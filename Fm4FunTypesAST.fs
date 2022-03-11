@@ -4,7 +4,7 @@ module Fm4FunTypesAST
 
 type Array = Aexpr List
 and Aexpr =
-  | Num of float
+  | Num of int
   | Var of string
   | ArrEntry of (string*Aexpr)
   | MultExpr of (Aexpr * Aexpr)
