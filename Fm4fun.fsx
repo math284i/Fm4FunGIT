@@ -92,15 +92,15 @@ let rec evalC e =
     | DoExpr(a)                     -> variablesArray
 *)
 
-let rec edgesGC q1 q2 commando =
+let rec edgesC q1 q2 commando =
     match (commando) with
     | AssignExpr (x,y)          -> (q1,x + evalA y, q2)::[]
     | AssignToArrExpr (x,a,b)   -> (q1, x + evalA a + evalA b, q2)::[]
     
     
-and edgesC q1 q2 commando =
+and edgesGC q1 q2 commando =
     match (commando) with
-    |
+    | 
 
 
 let rec evalC e =
@@ -134,7 +134,7 @@ let rec compute n =
         // We parse the input string
         let e = parse (Console.ReadLine())
         // and print the result of evaluating it
-        printfn "Result: %s" (evalC(e))
+        printfn "Result: %s" (edgesC 0 -1 e)
         compute n
         with err -> printfn "Not a valid language"
                     compute (n-1)
