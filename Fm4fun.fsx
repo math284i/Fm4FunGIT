@@ -39,15 +39,15 @@ let rec evalA e =
 
 let rec evalA e =
   match e with
-    | Num(x) -> "NUM(" + (string) x + ")"
+    | Num(x) -> (string) x
     | Var(x) -> x
-    | ArrEntry (a, b) -> a + "LBRACK" + evalA b + "RBRACK"
-    | MultExpr(x,y) -> "MULT(" + evalA x + ", " + evalA y + ")"
-    | DivExpr(x,y) -> "DIV(" + evalA x + ", " + evalA y + ")"
-    | AddExpr(x,y) -> "ADD(" + evalA x + ", " + evalA y + ")"
-    | MinusExpr(x,y) -> "MINUS(" + evalA x + ", " + evalA y + ")"
-    | PowExpr(x,y) -> "POW(" + evalA x + ", " + evalA y + ")"
-    | UMinusExpr(x) -> "MINUS(" + evalA x + ")"
+    | ArrEntry (a, b) -> "[" + a + "]:=" + evalA b
+    | MultExpr(x,y) -> evalA x + "*" + evalA y
+    | DivExpr(x,y) -> evalA x + "/" + evalA y
+    | AddExpr(x,y) -> evalA x + "+" + evalA y
+    | MinusExpr(x,y) -> evalA x + "-" + evalA y
+    | PowExpr(x,y) -> evalA x + "^" + evalA y
+    | UMinusExpr(x) -> "-" + evalA x
 
 (* 
 let rec evalB e =
@@ -69,17 +69,17 @@ let rec evalB e =
     match e with
         | True -> "TRUE"
         | False -> "FALSE"
-        | AndExpr(x, y)             -> "AND(" + evalB x + ", " + evalB y + ")"
-        | OrExpr(x, y)              -> "OR(" + evalB x + ", " + evalB y + ")"
-        | ScAndExpr(x, y)           -> "SCAND(" + evalB x + ", " + evalB y + ")"
-        | ScOrExpr(x, y)            -> "SCOR(" + evalB x + ", " + evalB y + ")"
-        | NotExpr(x)                -> "NOT(" + evalB x + ")"
-        | EqualExpr(x, y)           -> "EQUALS(" + evalA x + ", " + evalA y + ")"
-        | NotEqualExpr(x, y)        -> "NEQUALS(" + evalA x + ", " + evalA y + ")"
-        | GreaterThanExpr(x, y)     -> "GREATER(" + evalA x + ", " + evalA y + ")"
-        | GreaterOrEqualExpr(x, y)  -> "GOE(" + evalA x + ", " + evalA y + ")"
-        | LessThanExpr(x, y)        -> "LESS(" + evalA x + ", " +  evalA y + ")"
-        | LessOrEqualExpr(x, y)     -> "LOE(" + evalA x + ", " +  evalA y + ")"
+        | AndExpr(x, y)             -> evalB x + "&" + evalB y
+        | OrExpr(x, y)              -> evalB x + "|" + evalB y
+        | ScAndExpr(x, y)           -> evalB x + "&&" + evalB y
+        | ScOrExpr(x, y)            -> evalB x + "||" + evalB y
+        | NotExpr(x)                -> "¬" + evalB x
+        | EqualExpr(x, y)           -> evalA x + "=" + evalA y
+        | NotEqualExpr(x, y)        -> evalA x + "!=" + evalA y
+        | GreaterThanExpr(x, y)     -> evalA x + ">" + evalA y
+        | GreaterOrEqualExpr(x, y)  -> evalA x + ">=" + evalA y
+        | LessThanExpr(x, y)        -> evalA x + "<" +  evalA y
+        | LessOrEqualExpr(x, y)     -> evalA x + "<=" +  evalA y
 
 (*
 let rec evalC e =
@@ -105,16 +105,16 @@ and edgesGC q1 q2 commando =
 
 let rec evalC e =
     match e with
-        | AssignExpr(str, a)            -> "ASSIGN(" + str + ", " + evalA a + ")"
-        | AssignToArrExpr(str, a, b)    -> "ASSIGN(" + str + "LBRACK" + evalA a + "RBRACK" + evalA b + ")"
+        | AssignExpr(str, a)            -> str + ":=" + evalA a
+        | AssignToArrExpr(str, a, b)    -> str + "[" + evalA a + "]:=" + evalA b
         | SkipExpr                      -> "SKIP"
-        | DoubleExpr(a, b)              -> "DOUBLE(" + evalC a + ", " + evalC b + ")"
-        | IfExpr(a)                     -> "IF(" + evalGC a + "FI)"
-        | DoExpr(a)                     -> "DO(" + evalGC a + "OD)"
+        | DoubleExpr(a, b)              -> evalC a + " ; " + evalC b
+        | IfExpr(a)                     -> "if " + evalGC a + " fi"
+        | DoExpr(a)                     -> "do " + evalGC a + " od)"
 and evalGC e =
     match e with
-        | ArrowExpr(b, c)       -> "ARROW(" + evalB b + ", " + evalC c + ")"
-        | AlsoExpr(a, b)        -> "ALSO(" + evalGC a + ", " + evalGC b + ")"
+        | ArrowExpr(b, c)       -> evalB b + "->" + evalC c
+        | AlsoExpr(a, b)        -> evalGC a + " [] " + evalGC b
 
 let parse input =
     // translate string into a buffer of characters
