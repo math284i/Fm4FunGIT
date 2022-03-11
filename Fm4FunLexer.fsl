@@ -17,6 +17,7 @@ let num         = digit+ ( '.' digit+)?  ('E' ('+'|'-')? digit+ )?
 let whitespace  = [' ' '\t']
 let newline     = "\n\r" | '\n' | '\r'
 
+
 // We define now the rules for recognising and building tokens
 // for each of the tokens of our language we need a rule
 // NOTE: rules are applied in order top-down.
@@ -27,7 +28,6 @@ rule tokenize = parse
 | newline       { lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokenize lexbuf; }
 // deal with tokens that need to be built
 | num           { NUM(int(LexBuffer<_>.LexemeString lexbuf)) }
-| bool          { BOOLEAN(Boolean.Parse(LexBuffer<_>.LexemeString lexbuf)) }
 | "True"        { TRUE }
 | "False"       { FALSE }
 | '*'           { MULT }
