@@ -98,8 +98,8 @@ let rec evalC e =
         | AssignToArrExpr(str, a, b)    -> "ASSIGN(" + str + "LBRACK" + evalA a + "RBRACK" + evalA b + ")"
         | SkipExpr                      -> "SKIP"
         | DoubleExpr(a, b)              -> "DOUBLE(" + evalC a + ", " + evalC b + ")"
-        | IfExpr(a)                     -> "IF(" + evalGC a + ")"
-        | DoExpr(a)                     -> "DO(" + evalGC a + ")"
+        | IfExpr(a)                     -> "IF(" + evalGC a + "FI)"
+        | DoExpr(a)                     -> "DO(" + evalGC a + "OD)"
 and evalGC e =
     match e with
         | ArrowExpr(b, c)       -> "ARROW(" + evalB b + ", " + evalC c + ")"
