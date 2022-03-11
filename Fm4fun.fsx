@@ -67,8 +67,8 @@ let rec evalB e =
 *)
 let rec evalB e =
     match e with
-        | True(x) -> "TRUE"
-        | False(x) -> "FALSE"
+        | True -> "TRUE"
+        | False -> "FALSE"
         | AndExpr(x, y)             -> "AND(" + evalB x + ", " + evalB y + ")"
         | OrExpr(x, y)              -> "OR(" + evalB x + ", " + evalB y + ")"
         | ScAndExpr(x, y)           -> "SCAND(" + evalB x + ", " + evalB y + ")"
@@ -123,7 +123,7 @@ let rec compute n =
         // We parse the input string
         let e = parse (Console.ReadLine())
         // and print the result of evaluating it
-        printfn "Result: %s" (evalGC(e))
+        printfn "Result: %s" (evalC(e))
         compute n
         with err -> compute (n-1)
 
