@@ -15,8 +15,8 @@ and Aexpr =
   | UMinusExpr of (Aexpr)
 
 type Bexpr =
-  | True of bool
-  | False of bool
+  | True
+  | False
   | AndExpr of (Bexpr*Bexpr)
   | OrExpr of (Bexpr*Bexpr)
   | ScAndExpr of (Bexpr*Bexpr)
