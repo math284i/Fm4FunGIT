@@ -125,7 +125,9 @@ let rec compute n =
         // and print the result of evaluating it
         printfn "Result: %s" (evalC(e))
         compute n
-        with err -> compute (n-1)
+        with err -> printfn "Not a valid language"
+                    compute (n-1)
+                    
 
 // Start interacting with the user
 compute 3
