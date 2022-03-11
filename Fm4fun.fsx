@@ -123,7 +123,7 @@ let rec compute n =
         // We parse the input string
         let e = parse (Console.ReadLine())
         // and print the result of evaluating it
-        printfn "Result: %f" (evalC(e))
+        printfn "Result: %s" (evalC(e))
         compute n
         with err -> compute (n-1)
 
