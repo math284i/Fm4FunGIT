@@ -41,7 +41,9 @@ rule tokenize = parse
 | "Skip"        { SKIP }
 | ';'           { DOUBLE }
 | "If"          { IF }
+| "Fi"          { FI }
 | "Do"          { DO }
+| "Od"          { OD }
 | "->"          { ARROW }
 | "[]"          { ALSO }
 | "x"           { VARIABLE }
