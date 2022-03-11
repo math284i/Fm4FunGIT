@@ -6,36 +6,36 @@ open Fm4FunTypesAST
 // Declare the tokens (terminal symbols)
 %token <float> NUM
 %token <string> STRING
-%token <> TRUE FALSE
-%token <> MULT 
-%token <> DIV 
-%token <> ADD 
-%token <> MINUS 
-%token <> POW 
-%token <> LPAR 
-%token <> RPAR 
-%token <> EOF 
-%token <> SKIP
-%token <> DOUBLE
-%token <> IF
-%token <> DO
-%token <> ARROW
-%token <> ALSO
-%token <> VARIABLE
-%token <> LBRACK
-%token <> RBRACK
-%token <> ASSIGN
-%token <> AND
-%token <> OR
-%token <> SCAND
-%token <> SCOR
-%token <> NOT
-%token <> EQUALS
-%token <> NEQUALS
-%token <> GREATER
-%token <> GOE
-%token <> LESS
-%token <> LOE
+%token TRUE FALSE
+%token MULT 
+%token DIV 
+%token ADD 
+%token MINUS 
+%token POW 
+%token LPAR 
+%token RPAR 
+%token EOF 
+%token SKIP
+%token DOUBLE
+%token IF
+%token DO
+%token ARROW
+%token ALSO
+%token <string> VARIABLE
+%token LBRACK
+%token RBRACK
+%token ASSIGN
+%token AND
+%token OR
+%token SCAND
+%token SCOR
+%token NOT
+%token EQUALS
+%token NEQUALS
+%token GREATER
+%token GOE
+%token LESS
+%token LOE
 
 // NOTE: the actual formats of these tokens are defined in the lexer file
 //       as regular expressions
@@ -88,11 +88,11 @@ start: command EOF             { $1 }
 
 command:
     | VARIABLE ASSIGN aExpression                           { AssignExpr($1,$3) }
-    | LBRACK string RBRACK aExpression ASSIGN aExpression   { AssignToArrExpr($2,$4,$6) }
-    | SKIP                                                  { SkipExpr() }
+    | LBRACK STRING RBRACK aExpression ASSIGN aExpression   { AssignToArrExpr($2,$4,$6) }
+    | SKIP                                                  { SkipExpr }
     | command DOUBLE command                                { DoubleExpr($1,$3) }
-    | IF guarded FI                                         { IfExpr($2) }
-    | DO guarded OD                                         { DoExpr($2) }
+    | IF guarded                                            { IfExpr($2) }
+    | DO guarded                                            { DoExpr($2) }
 
 guarded:
     | bExpression ARROW command         { ArrowExpr($1,$3) }
@@ -107,7 +107,7 @@ aExpression:
   | MINUS aExpression                   { UMinusExpr($2) }
   | NUM                                 { Num($1) }
   | VARIABLE                            { Var($1) }
-  | LBRACK string RBRACK aExpression    { ArrEntry($2,$4) }
+  | LBRACK STRING RBRACK aExpression    { ArrEntry($2,$4) }
   | LPAR aExpression RPAR               { $2 }
 
 bExpression:
@@ -116,7 +116,7 @@ bExpression:
     | bExpression AND bExpression       { AndExpr($1,$3) }
     | bExpression OR bExpression        { OrExpr($1,$3) }
     | bExpression SCAND bExpression     { ScAndExpr($1,$3) } //Short circuit and
-    | bExpression SCOR bExpression      { ScOrExpr($1,$3 } // -||- or
+    | bExpression SCOR bExpression      { ScOrExpr($1,$3) } // -||- or
     | NOT bExpression                   { NotExpr($2) }
     | aExpression EQUALS aExpression    { EqualExpr($1,$3) }
     | aExpression NEQUALS aExpression   { NotEqualExpr($1,$3) }

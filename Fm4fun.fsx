@@ -42,8 +42,8 @@ let rec evalA e =
     | Num(x) -> "NUM(" + (string) x + ")"
     | Var(x) -> x
     | ArrEntry (a, b) -> a + "LBRACK" + evalA b + "RBRACK"
-    | MultExpr(x,y) -> "MULT(" + evalA x + ", " + evalA (y) + ")"
-    | DivExpr(x,y) -> "DIV(" + evalA x + ", " + evalA (y) + ")"
+    | MultExpr(x,y) -> "MULT(" + evalA x + ", " + evalA y + ")"
+    | DivExpr(x,y) -> "DIV(" + evalA x + ", " + evalA y + ")"
     | AddExpr(x,y) -> "ADD(" + evalA x + ", " + evalA y + ")"
     | MinusExpr(x,y) -> "MINUS(" + evalA x + ", " + evalA y + ")"
     | PowExpr(x,y) -> "POW(" + evalA x + ", " + evalA y + ")"
@@ -67,19 +67,19 @@ let rec evalB e =
 *)
 let rec evalB e =
     match e with
-    | True(x) -> "TRUE"
-    | False(x) -> "FALSE"
-    | AndExpr(x, y)             -> "AND(" + evalB x + ", " + evalB y + ")"
-    | OrExpr(x, y)              -> "OR(" + evalB x + ", " + evalB y + ")"
-    | ScAndExpr(x, y)           -> "SCAND(" + evalB x + ", " + evalB y + ")"
-    | ScOrExpr(x, y)            -> "SCOR(" + evalB x + ", " + evalB y + ")"
-    | NotExpr(x)                -> "NOT(" + evalB x + ")"
-    | EqualExpr(x, y)           -> "EQUALS(" + evalA x + ", " + evalA y + ")"
-    | NotEqualExpr(x, y)        -> "NEQUALS(" + evalA x + ", " + evalA y + ")"
-    | GreaterThanExpr(x, y)     -> "GREATER(" + evalA x + ", " + evalA y + ")"
-    | GreaterOrEqualExpr(x, y)  -> "GOE(" + evalA x + ", " + evalA y + ")"
-    | LessThanExpr(x, y)        -> "LESS(" + evalA x + ", " +  evalA y + ")"
-    | LessOrEqualExpr(x, y)     -> "LOE(" + evalA x + ", " +  evalA y + ")"
+        | True(x) -> "TRUE"
+        | False(x) -> "FALSE"
+        | AndExpr(x, y)             -> "AND(" + evalB x + ", " + evalB y + ")"
+        | OrExpr(x, y)              -> "OR(" + evalB x + ", " + evalB y + ")"
+        | ScAndExpr(x, y)           -> "SCAND(" + evalB x + ", " + evalB y + ")"
+        | ScOrExpr(x, y)            -> "SCOR(" + evalB x + ", " + evalB y + ")"
+        | NotExpr(x)                -> "NOT(" + evalB x + ")"
+        | EqualExpr(x, y)           -> "EQUALS(" + evalA x + ", " + evalA y + ")"
+        | NotEqualExpr(x, y)        -> "NEQUALS(" + evalA x + ", " + evalA y + ")"
+        | GreaterThanExpr(x, y)     -> "GREATER(" + evalA x + ", " + evalA y + ")"
+        | GreaterOrEqualExpr(x, y)  -> "GOE(" + evalA x + ", " + evalA y + ")"
+        | LessThanExpr(x, y)        -> "LESS(" + evalA x + ", " +  evalA y + ")"
+        | LessOrEqualExpr(x, y)     -> "LOE(" + evalA x + ", " +  evalA y + ")"
 
 (*
 let rec evalC e =
@@ -94,16 +94,16 @@ let rec evalC e =
 
 let rec evalC e =
     match e with
-    | AssignExpr(str, a)            -> "ASSIGN(" + str + ", " + evalA a + ")"
-    | AssignToArrExpr(str, a, b)    -> "ASSIGN(" + str + "LBRACK" + evalA a + "RBRACK" + evalA b + ")"
-    | SkipExpr                      -> "SKIP"
-    | DoubleExpr(a, b)              -> "DOUBLE(" + evalC a + ", " + evalC b + ")"
-    | IfExpr(a)                     -> "IF(" + evalGC a + ")"
-    | DoExpr(a)                     -> "DO(" + evalGC a + ")"
+        | AssignExpr(str, a)            -> "ASSIGN(" + str + ", " + evalA a + ")"
+        | AssignToArrExpr(str, a, b)    -> "ASSIGN(" + str + "LBRACK" + evalA a + "RBRACK" + evalA b + ")"
+        | SkipExpr                      -> "SKIP"
+        | DoubleExpr(a, b)              -> "DOUBLE(" + evalC a + ", " + evalC b + ")"
+        | IfExpr(a)                     -> "IF(" + evalGC a + ")"
+        | DoExpr(a)                     -> "DO(" + evalGC a + ")"
 and evalGC e =
     match e with
-    | ArrowExpr(b, c)       -> "ARROW(" + evalB b + ", " + evalC c + ")"
-    | AlsoExpr(a, b)        -> "ALSO(" + evalGC a + ", " + evalGC b + ")"
+        | ArrowExpr(b, c)       -> "ARROW(" + evalB b + ", " + evalC c + ")"
+        | AlsoExpr(a, b)        -> "ALSO(" + evalGC a + ", " + evalGC b + ")"
 
 let parse input =
     // translate string into a buffer of characters
@@ -123,7 +123,7 @@ let rec compute n =
         // We parse the input string
         let e = parse (Console.ReadLine())
         // and print the result of evaluating it
-        printfn "Result: %f" (evalC(e))
+        printfn "Result: %s" (evalC(e))
         compute n
         with err -> compute (n-1)
 
