@@ -15,7 +15,7 @@ open Fm4FunLexer
 // of arithmetic expressions (AST of type expr)
 
 let variablesArray = []
-
+let mutable globalQ = 0
 let rec variableHelper str arr =
     match arr with
     | []                     -> failwith "Undefined variable"
@@ -92,16 +92,6 @@ let rec evalC e =
     | DoExpr(a)                     -> variablesArray
 *)
 
-let rec edgesC q1 q2 commando =
-    match (commando) with
-    | AssignExpr (x,y)          -> (q1,x + evalA y, q2)::[]
-    | AssignToArrExpr (x,a,b)   -> (q1, x + evalA a + evalA b, q2)::[]
-    
-    
-and edgesGC q1 q2 commando =
-    match (commando) with
-    | 
-
 
 let rec evalC e =
     match e with
@@ -115,6 +105,34 @@ and evalGC e =
     match e with
         | ArrowExpr(b, c)       -> "ARROW(" + evalB b + ", " + evalC c + ")"
         | AlsoExpr(a, b)        -> "ALSO(" + evalGC a + ", " + evalGC b + ")"
+
+let rec doneGC GC =
+    match (GC) with
+    | ArrowExpr (b, c)  -> NotExpr b
+    | AlsoExpr (a, b)   -> AndExpr (doneGC a, doneGC b)
+
+let rec edgesC q1 q2 commando =
+    match (commando) with
+    | AssignExpr (x,y)          -> (q1, x + evalA y, q2)::[]
+    | AssignToArrExpr (x,a,b)   -> (q1, x + evalA a + evalA b, q2)::[]
+    | SkipExpr                  -> (q1, "skip", q2)::[]
+    | DoubleExpr (x, y)         -> globalQ <- globalQ + 1
+                                   let E1 = edgesC q1 globalQ x
+                                   let E2 = edgesC globalQ q2 y
+                                   E1 @ E2
+    | IfExpr (a)                -> edgesGC q1 q2 a
+    | DoExpr (a)                -> let b = doneGC a
+                                   let E = edgesGC q1 q1 a
+                                   E@(q1, evalB b , q2)::[]
+    
+and edgesGC q1 q2 commando =
+    match (commando) with
+    | ArrowExpr (b, c)          -> globalQ <- globalQ + 1
+                                   let E = edgesC globalQ q2 c
+                                   (q1, evalB b, globalQ)::E
+    | AlsoExpr (g1, g2)          -> let E1 = edgesGC q1 q2 g1
+                                    let E2 = edgesGC q1 q2 g2
+                                    E1 @ E2
 
 let parse input =
     // translate string into a buffer of characters
