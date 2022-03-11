@@ -142,6 +142,11 @@ let parse input =
     // return the result of parsing (i.e. value of type "expr")
     res
 
+let rec printList = function
+    | []            -> ""
+    | (a,b,c)::xy         -> printfn "q%i -> %s -> q%i" a b c
+                             printList xy
+
 // We implement here the function that interacts with the user
 let rec compute n =
     if n = 0 then
@@ -152,7 +157,8 @@ let rec compute n =
         // We parse the input string
         let e = parse (Console.ReadLine())
         // and print the result of evaluating it
-        printfn "Result: %s" (edgesC 0 -1 e)
+        //printfn "Result: %s" (edgesC 0 -1 e)
+        printList (edgesC 0 -1 e)
         compute n
         with err -> printfn "Not a valid language"
                     compute (n-1)
