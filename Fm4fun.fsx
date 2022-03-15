@@ -69,17 +69,17 @@ let rec evalB e =
     match e with
         | True -> "TRUE"
         | False -> "FALSE"
-        | AndExpr(x, y)             -> evalB x + "&" + evalB y
-        | OrExpr(x, y)              -> evalB x + "|" + evalB y
-        | ScAndExpr(x, y)           -> evalB x + "&&" + evalB y
-        | ScOrExpr(x, y)            -> evalB x + "||" + evalB y
-        | NotExpr(x)                -> "¬" + evalB x
-        | EqualExpr(x, y)           -> evalA x + "=" + evalA y
-        | NotEqualExpr(x, y)        -> evalA x + "!=" + evalA y
-        | GreaterThanExpr(x, y)     -> evalA x + ">" + evalA y
-        | GreaterOrEqualExpr(x, y)  -> evalA x + ">=" + evalA y
-        | LessThanExpr(x, y)        -> evalA x + "<" +  evalA y
-        | LessOrEqualExpr(x, y)     -> evalA x + "<=" +  evalA y
+        | AndExpr(x, y)             -> "(" + evalB x + "&" + evalB y + ")"
+        | OrExpr(x, y)              -> "(" + evalB x + "|" + evalB y + ")"
+        | ScAndExpr(x, y)           -> "(" + evalB x + "&&" + evalB y + ")"
+        | ScOrExpr(x, y)            -> "(" + evalB x + "||" + evalB y + ")"
+        | NotExpr(x)                -> "(¬" + evalB x + ")"
+        | EqualExpr(x, y)           -> "(" + evalA x + "=" + evalA y + ")"
+        | NotEqualExpr(x, y)        -> "(" + evalA x + "!=" + evalA y + ")"
+        | GreaterThanExpr(x, y)     -> "(" + evalA x + ">" + evalA y + ")"
+        | GreaterOrEqualExpr(x, y)  -> "(" + evalA x + ">=" + evalA y + ")"
+        | LessThanExpr(x, y)        -> "(" + evalA x + "<" +  evalA y + ")"
+        | LessOrEqualExpr(x, y)     -> "(" + evalA x + "<=" +  evalA y + ")"
 
 (*
 let rec evalC e =
