@@ -171,6 +171,22 @@ let rec printList = function
     | (a,b,c)::xy         -> printfn "q%s -> q%s[label = \"%s\"];" a c b
                              printList xy
 
+//printing the step-wise evaluation to the console
+let rec printGCL = function
+    | [] -> ""
+    //| //<-- put stuff here
+
+
+//We implement here the interpreter for the GCL
+let rec interpreter n =
+    printf "Enter initial values: "
+    try
+        let e = parse (Console.ReadLine())
+        printGCL //<-- put stuff here
+        interpreter n
+        with err -> printfn "some value(s) are not valid"
+                    interpreter (n-1)
+
 // We implement here the function that interacts with the user
 let rec compute n =
     if n = 0 then
