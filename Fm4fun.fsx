@@ -96,7 +96,7 @@ let rec evalC e =
 let rec evalC e =
     match e with
         | AssignExpr(str, a)            -> str + ":=" + evalA a
-        | AssignToArrExpr(str, a, b)    -> str + "[" + evalA a + "]:=" + evalA b
+        | AssignToArrExpr(str, a, b)    -> evalA (ArrEntry (str,a)) + ":=" + evalA b
         | SkipExpr                      -> "SKIP"
         | DoubleExpr(a, b)              -> evalC a + " ; " + evalC b
         | IfExpr(a)                     -> "if " + evalGC a + " fi"
@@ -113,12 +113,12 @@ let rec doneGC GC =
 
 let rec edgesC q1 q2 commando =
     match (commando) with
-    | AssignExpr (x,y)          -> (q1, x + evalA y, q2)::[]
-    | AssignToArrExpr (x,a,b)   -> (q1, x + "fisk" + evalA a + evalA b, q2)::[]
-    | SkipExpr                  -> (q1, "skip", q2)::[]
+    | AssignExpr (x,y)          -> (q1, evalC (AssignExpr (x, y)), q2)::[]
+    | AssignToArrExpr (x,a,b)   -> (q1, evalC (AssignToArrExpr (x, a, b)), q2)::[]
+    | SkipExpr                  -> (q1, evalC SkipExpr, q2)::[]
     | DoubleExpr (x, y)         -> globalQ <- globalQ + 1
-                                   let E1 = edgesC q1 globalQ x
-                                   let E2 = edgesC globalQ q2 y
+                                   let E1 = edgesC q1 (globalQ.ToString()) x
+                                   let E2 = edgesC (globalQ.ToString()) q2 y
                                    E1 @ E2
     | IfExpr (a)                -> edgesGC q1 q2 a
     | DoExpr (a)                -> let b = doneGC a
@@ -128,8 +128,8 @@ let rec edgesC q1 q2 commando =
 and edgesGC q1 q2 commando =
     match (commando) with
     | ArrowExpr (b, c)          -> globalQ <- globalQ + 1
-                                   let E = edgesC globalQ q2 c
-                                   (q1, evalB b, globalQ)::E
+                                   let E = edgesC (globalQ.ToString()) q2 c
+                                   (q1, evalB b, (globalQ.ToString()))::E
     | AlsoExpr (g1, g2)          -> let E1 = edgesGC q1 q2 g1
                                     let E2 = edgesGC q1 q2 g2
                                     E1 @ E2
@@ -144,7 +144,7 @@ let parse input =
 
 let rec printList = function
     | []            -> ""
-    | (a,b,c)::xy         -> printfn "q%i -> q%i[label = \"%s\"];" a c b
+    | (a,b,c)::xy         -> printfn "q%s -> q%s[label = \"%s\"];" a c b
                              printList xy
 
 // We implement here the function that interacts with the user
@@ -162,7 +162,8 @@ let rec compute n =
         node [shape = circle]; q▷;
         node [shape = doublecircle]; q◀; 
         node [shape = circle]"
-        printList (edgesC 0 -1 e)
+        printList (edgesC "▷" "◀" e)
+        printfn "}"
         compute n
         with err -> printfn "Not a valid language"
                     compute (n-1)
