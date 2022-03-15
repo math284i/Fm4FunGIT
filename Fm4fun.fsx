@@ -41,7 +41,7 @@ let rec evalA e =
   match e with
     | Num(x) -> (string) x
     | Var(x) -> x
-    | ArrEntry (a, b) -> "[" + a + "]:=" + evalA b
+    | ArrEntry (a, b) -> a + "["  + evalA b + "]"
     | MultExpr(x,y) -> evalA x + "*" + evalA y
     | DivExpr(x,y) -> evalA x + "/" + evalA y
     | AddExpr(x,y) -> evalA x + "+" + evalA y
