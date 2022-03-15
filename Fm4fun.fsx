@@ -114,7 +114,7 @@ let rec doneGC GC =
 let rec edgesC q1 q2 commando =
     match (commando) with
     | AssignExpr (x,y)          -> (q1, x + evalA y, q2)::[]
-    | AssignToArrExpr (x,a,b)   -> (q1, x + evalA a + evalA b, q2)::[]
+    | AssignToArrExpr (x,a,b)   -> (q1, x + "fisk" + evalA a + evalA b, q2)::[]
     | SkipExpr                  -> (q1, "skip", q2)::[]
     | DoubleExpr (x, y)         -> globalQ <- globalQ + 1
                                    let E1 = edgesC q1 globalQ x
@@ -144,7 +144,7 @@ let parse input =
 
 let rec printList = function
     | []            -> ""
-    | (a,b,c)::xy         -> printfn "q%i -> %s -> q%i" a b c
+    | (a,b,c)::xy         -> printfn "q%i -> q%i[label = \"%s\"];" a c b
                              printList xy
 
 // We implement here the function that interacts with the user
@@ -158,6 +158,10 @@ let rec compute n =
         let e = parse (Console.ReadLine())
         // and print the result of evaluating it
         //printfn "Result: %s" (edgesC 0 -1 e)
+        printfn "digraph program_graph {rankdir=LR;
+        node [shape = circle]; q▷;
+        node [shape = doublecircle]; q◀; 
+        node [shape = circle]"
         printList (edgesC 0 -1 e)
         compute n
         with err -> printfn "Not a valid language"
