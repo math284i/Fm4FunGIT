@@ -111,28 +111,52 @@ let rec doneGC GC =
     | ArrowExpr (b, c)  -> NotExpr b
     | AlsoExpr (a, b)   -> AndExpr (doneGC a, doneGC b)
 
-let rec edgesC q1 q2 commando =
+let rec edgesCn q1 q2 commando =
     match (commando) with
     | AssignExpr (x,y)          -> (q1, evalC (AssignExpr (x, y)), q2)::[]
     | AssignToArrExpr (x,a,b)   -> (q1, evalC (AssignToArrExpr (x, a, b)), q2)::[]
     | SkipExpr                  -> (q1, evalC SkipExpr, q2)::[]
     | DoubleExpr (x, y)         -> globalQ <- globalQ + 1
-                                   let E1 = edgesC q1 (globalQ.ToString()) x
-                                   let E2 = edgesC (globalQ.ToString()) q2 y
+                                   let E1 = edgesCn q1 (globalQ.ToString()) x
+                                   let E2 = edgesCn (globalQ.ToString()) q2 y
                                    E1 @ E2
-    | IfExpr (a)                -> edgesGC q1 q2 a
+    | IfExpr (a)                -> edgesGCn q1 q2 a
     | DoExpr (a)                -> let b = doneGC a
-                                   let E = edgesGC q1 q1 a
+                                   let E = edgesGCn q1 q1 a
                                    E@(q1, evalB b , q2)::[]
     
-and edgesGC q1 q2 commando =
+and edgesGCn q1 q2 commando =
     match (commando) with
     | ArrowExpr (b, c)          -> globalQ <- globalQ + 1
-                                   let E = edgesC (globalQ.ToString()) q2 c
+                                   let E = edgesCn (globalQ.ToString()) q2 c
                                    (q1, evalB b, (globalQ.ToString()))::E
-    | AlsoExpr (g1, g2)          -> let E1 = edgesGC q1 q2 g1
-                                    let E2 = edgesGC q1 q2 g2
+    | AlsoExpr (g1, g2)          -> let E1 = edgesGCn q1 q2 g1
+                                    let E2 = edgesGCn q1 q2 g2
                                     E1 @ E2
+
+let rec edgesCd q1 q2 commando =
+    match (commando) with
+    | AssignExpr (x,y)          -> (q1, x + evalA y, q2)::[]
+    | AssignToArrExpr (x,a,b)   -> (q1, x + evalA a + evalA b, q2)::[]
+    | SkipExpr                  -> (q1, "skip", q2)::[]
+    | DoubleExpr (x, y)         -> globalQ <- globalQ + 1
+                                   let E1 = edgesCd q1 globalQ x
+                                   let E2 = edgesCd globalQ q2 y
+                                   E1 @ E2
+    | IfExpr (a)                -> let (E,d) = edgesGCd q1 q2 a False
+                                   E
+    | DoExpr (a)                -> let b = doneGC a
+                                   let (E,d) = edgesGCd q1 q1 a False
+                                   E@(q1, evalB (NotExpr d), q2)::[]
+and edgesGCd q1 q2 commando d =
+    match (commando) with
+    | ArrowExpr (b, c)          -> globalQ <- globalQ + 1
+                                   let E = edgesCd globalQ q2 c
+                                   ((q1, evalB (AndExpr(b, NotExpr d)), globalQ)::E, OrExpr(b,d))
+    | AlsoExpr (g1, g2)         -> let (E1,d1) = edgesGCd q1 q2 g1 d
+                                   let (E2,d2) = edgesGCd q1 q2 g2 d1
+                                   (E1 @ E2, d2)
+
 
 let parse input =
     // translate string into a buffer of characters
@@ -162,7 +186,7 @@ let rec compute n =
         node [shape = circle]; q▷;
         node [shape = doublecircle]; q◀; 
         node [shape = circle]"
-        printList (edgesC "▷" "◀" e)
+        printList (edgesCn "▷" "◀" e)
         printfn "}"
         compute n
         with err -> printfn "Not a valid language"
