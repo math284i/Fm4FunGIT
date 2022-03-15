@@ -136,12 +136,12 @@ and edgesGCn q1 q2 commando =
 
 let rec edgesCd q1 q2 commando =
     match (commando) with
-    | AssignExpr (x,y)          -> (q1, x + evalA y, q2)::[]
-    | AssignToArrExpr (x,a,b)   -> (q1, x + evalA a + evalA b, q2)::[]
-    | SkipExpr                  -> (q1, "skip", q2)::[]
+    | AssignExpr (x,y)          -> (q1, evalC (AssignExpr (x, y)), q2)::[]
+    | AssignToArrExpr (x,a,b)   -> (q1, evalC (AssignToArrExpr (x, a, b)), q2)::[]
+    | SkipExpr                  -> (q1, evalC SkipExpr, q2)::[]
     | DoubleExpr (x, y)         -> globalQ <- globalQ + 1
-                                   let E1 = edgesCd q1 globalQ x
-                                   let E2 = edgesCd globalQ q2 y
+                                   let E1 = edgesCd q1 (globalQ.ToString()) x
+                                   let E2 = edgesCd (globalQ.ToString()) q2 y
                                    E1 @ E2
     | IfExpr (a)                -> let (E,d) = edgesGCd q1 q2 a False
                                    E
@@ -151,8 +151,8 @@ let rec edgesCd q1 q2 commando =
 and edgesGCd q1 q2 commando d =
     match (commando) with
     | ArrowExpr (b, c)          -> globalQ <- globalQ + 1
-                                   let E = edgesCd globalQ q2 c
-                                   ((q1, evalB (AndExpr(b, NotExpr d)), globalQ)::E, OrExpr(b,d))
+                                   let E = edgesCd (globalQ.ToString()) q2 c
+                                   ((q1, evalB (AndExpr(b, NotExpr d)), (globalQ.ToString()))::E, OrExpr(b,d))
     | AlsoExpr (g1, g2)         -> let (E1,d1) = edgesGCd q1 q2 g1 d
                                    let (E2,d2) = edgesGCd q1 q2 g2 d1
                                    (E1 @ E2, d2)
@@ -182,10 +182,28 @@ let rec interpreter n =
     printf "Enter initial values: "
     try
         let e = parse (Console.ReadLine())
-        printGCL //<-- put stuff here
+        //printGCL //<-- put stuff here
         interpreter n
         with err -> printfn "some value(s) are not valid"
                     interpreter (n-1)
+
+
+type CommandLineOptions = {
+    typeTree: string
+    }
+
+let parseCommandLine args e =
+    match args with
+    | "/n" -> printList (edgesCn "▷" "◀" e)
+    
+    | "/d" -> printList (edgesCd "▷" "◀" e)
+
+let rec readlines () = seq {
+    let line = Console.ReadLine()
+    if line <> null then
+        yield line
+        yield! readlines ()
+}
 
 // We implement here the function that interacts with the user
 let rec compute n =
@@ -195,14 +213,14 @@ let rec compute n =
         printf "Enter an arithmetic expression: "
         try
         // We parse the input string
-        let e = parse (Console.ReadLine())
+        let e = readlines
         // and print the result of evaluating it
         //printfn "Result: %s" (edgesC 0 -1 e)
         printfn "digraph program_graph {rankdir=LR;
         node [shape = circle]; q▷;
         node [shape = doublecircle]; q◀; 
         node [shape = circle]"
-        printList (edgesCn "▷" "◀" e)
+        parseCommandLine e
         printfn "}"
         compute n
         with err -> printfn "Not a valid language"
