@@ -69,17 +69,17 @@ let rec evalB e =
     match e with
         | True -> "TRUE"
         | False -> "FALSE"
-        | AndExpr(x, y)             -> evalB x + "&" + evalB y
-        | OrExpr(x, y)              -> evalB x + "|" + evalB y
-        | ScAndExpr(x, y)           -> evalB x + "&&" + evalB y
-        | ScOrExpr(x, y)            -> evalB x + "||" + evalB y
-        | NotExpr(x)                -> "¬" + evalB x
-        | EqualExpr(x, y)           -> evalA x + "=" + evalA y
-        | NotEqualExpr(x, y)        -> evalA x + "!=" + evalA y
-        | GreaterThanExpr(x, y)     -> evalA x + ">" + evalA y
-        | GreaterOrEqualExpr(x, y)  -> evalA x + ">=" + evalA y
-        | LessThanExpr(x, y)        -> evalA x + "<" +  evalA y
-        | LessOrEqualExpr(x, y)     -> evalA x + "<=" +  evalA y
+        | AndExpr(x, y)             -> "(" + evalB x + "&" + evalB y + ")"
+        | OrExpr(x, y)              -> "(" + evalB x + "|" + evalB y + ")"
+        | ScAndExpr(x, y)           -> "(" + evalB x + "&&" + evalB y + ")"
+        | ScOrExpr(x, y)            -> "(" + evalB x + "||" + evalB y + ")"
+        | NotExpr(x)                -> "(¬" + evalB x + ")"
+        | EqualExpr(x, y)           -> "(" + evalA x + "=" + evalA y + ")"
+        | NotEqualExpr(x, y)        -> "(" + evalA x + "!=" + evalA y + ")"
+        | GreaterThanExpr(x, y)     -> "(" + evalA x + ">" + evalA y + ")"
+        | GreaterOrEqualExpr(x, y)  -> "(" + evalA x + ">=" + evalA y + ")"
+        | LessThanExpr(x, y)        -> "(" + evalA x + "<" +  evalA y + ")"
+        | LessOrEqualExpr(x, y)     -> "(" + evalA x + "<=" +  evalA y + ")"
 
 (*
 let rec evalC e =
@@ -146,6 +146,24 @@ let rec printList = function
     | []            -> ""
     | (a,b,c)::xy         -> printfn "q%i -> %s -> q%i" a b c
                              printList xy
+                             
+//printing the step-wise evaluation to the console
+let rec printGCL = function
+    | [] -> ""
+    | //<-- put stuff here
+
+
+//We implement here the interpreter for the GCL
+let rec interpreter n =
+    printf "Enter initial values: "
+    try
+        let e = parse (Console.ReadLine())
+        printGCL() //<-- put stuff here
+        interpreter n
+        with err -> printfn "some value(s) are not valid"
+                    interpreter (n-1)
+
+
 
 // We implement here the function that interacts with the user
 let rec compute n =
@@ -159,10 +177,12 @@ let rec compute n =
         // and print the result of evaluating it
         //printfn "Result: %s" (edgesC 0 -1 e)
         printList (edgesC 0 -1 e)
+        interpreter 1
         compute n
         with err -> printfn "Not a valid language"
                     compute (n-1)
         
 
 // Start interacting with the user
-compute 3
+compute 5
+
