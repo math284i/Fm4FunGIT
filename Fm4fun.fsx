@@ -122,14 +122,12 @@ let rec edgesCn q1 q2 commando =
                                    E1 @ E2
     | IfExpr (a)                -> edgesGCn q1 q2 a
     | DoExpr (a)                -> let b = doneGC a
-                                   let E = edgesGCn q1 q1 a
-                                   E@(q1, evalB b , q2)::[]
+                                   (q1, evalB b , q2)::edgesGCn q1 q1 a
     
 and edgesGCn q1 q2 commando =
     match (commando) with
     | ArrowExpr (b, c)          -> globalQ <- globalQ + 1
-                                   let E = edgesCn (globalQ.ToString()) q2 c
-                                   (q1, evalB b, (globalQ.ToString()))::E
+                                   (q1, evalB b, (globalQ.ToString()))::edgesCn (globalQ.ToString()) q2 c
     | AlsoExpr (g1, g2)          -> let E1 = edgesGCn q1 q2 g1
                                     let E2 = edgesGCn q1 q2 g2
                                     E1 @ E2
@@ -151,8 +149,7 @@ let rec edgesCd q1 q2 commando =
 and edgesGCd q1 q2 commando d =
     match (commando) with
     | ArrowExpr (b, c)          -> globalQ <- globalQ + 1
-                                   let E = edgesCd (globalQ.ToString()) q2 c
-                                   ((q1, evalB (AndExpr(b, NotExpr d)), (globalQ.ToString()))::E, OrExpr(b,d))
+                                   ((q1, evalB (AndExpr(b, NotExpr d)), (globalQ.ToString()))::edgesCd (globalQ.ToString()) q2 c, OrExpr(b,d))
     | AlsoExpr (g1, g2)         -> let (E1,d1) = edgesGCd q1 q2 g1 d
                                    let (E2,d2) = edgesGCd q1 q2 g2 d1
                                    (E1 @ E2, d2)
@@ -194,9 +191,9 @@ type CommandLineOptions = {
 
 let parseCommandLine args e =
     match args with
-    | "/n" -> printList (edgesCn "▷" "◀" e)
+    | "n" -> printList (edgesCn "▷" "◀" e)
     
-    | "/d" -> printList (edgesCd "▷" "◀" e)
+    | "d" -> printList (edgesCd "▷" "◀" e)
 
 let rec readlines () = seq {
     let line = Console.ReadLine()
@@ -210,17 +207,20 @@ let rec compute n =
     if n = 0 then
         printfn "Bye bye"
     else
+        printf "Enter n for non and d for determenistic: "
+        let a = Console.ReadLine()
         printf "Enter an arithmetic expression: "
         try
         // We parse the input string
-        let e = readlines
+
+        let e = parse (Console.ReadLine())
         // and print the result of evaluating it
         //printfn "Result: %s" (edgesC 0 -1 e)
         printfn "digraph program_graph {rankdir=LR;
         node [shape = circle]; q▷;
         node [shape = doublecircle]; q◀; 
         node [shape = circle]"
-        parseCommandLine e
+        parseCommandLine a e
         printfn "}"
         compute n
         with err -> printfn "Not a valid language"
