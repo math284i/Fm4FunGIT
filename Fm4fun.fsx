@@ -1,6 +1,3 @@
-// This script implements our interactive calculator
-
-// We need to import a couple of modules, including the generated lexer and parser
 #r "FsLexYacc.Runtime.10.0.0/lib/net46/FsLexYacc.Runtime.dll"
 open FSharp.Text.Lexing
 open System
@@ -11,31 +8,19 @@ open Fm4FunParser
 #load "Fm4FunLexer.fs"
 open Fm4FunLexer
 
-// We define the evaluation function recursively, by induction on the structure
-// of arithmetic expressions (AST of type expr)
 
+//Global stuff
 let variablesArray = []
 let mutable globalQ = 0
+let mutable status = "Terminated"
+let mutable lastNode = "▷"
+
+
 let rec variableHelper str arr =
     match arr with
     | []                     -> failwith "Undefined variable"
     | (x,y)::xs when x = str -> y
     | x::xs                  -> variableHelper str xs
-
-(*
-let rec evalA e =
-  match e with
-    | Num(x) -> x
-    | Var(x) -> variableHelper x variablesArray
-    | ArrEntry (a, b) -> 0.0
-    | MultExpr(x,y) -> evalA(x) * evalA (y)
-    | DivExpr(x,y) -> evalA(x) / evalA (y)
-    | AddExpr(x,y) -> evalA(x) + evalA (y)
-    | MinusExpr(x,y) -> evalA(x) - evalA (y)
-    | PowExpr(x,y) -> evalA(x) ** evalA (y)
-    | UMinusExpr(x) -> - evalA(x)
-
-*)
 
 let rec evalA e =
   match e with
@@ -49,22 +34,6 @@ let rec evalA e =
     | PowExpr(x,y) -> evalA x + "^" + evalA y
     | UMinusExpr(x) -> "-" + evalA x
 
-(* 
-let rec evalB e =
-    match e with
-    | B(x) -> x
-    | AndExpr(x, y)             -> (evalB x) && (evalB y)
-    | OrExpr(x, y)              -> evalB x || evalB y
-    | ScAndExpr(x, y)           -> evalB x && evalB y
-    | ScOrExpr(x, y)            -> evalB x || evalB y
-    | NotExpr(x)                -> not (evalB x)
-    | EqualExpr(x, y)           -> evalA x = evalA y
-    | NotEqualExpr(x, y)        -> not (evalA x = evalA y)
-    | GreaterThanExpr(x, y)     -> evalA x > evalA y
-    | GreaterOrEqualExpr(x, y)  -> evalA x >= evalA y
-    | LessThanExpr(x, y)        -> evalA x < evalA y
-    | LessOrEqualExpr(x, y)     -> evalA x <= evalA y
-*)
 let rec evalB e =
     match e with
         | True -> "TRUE"
@@ -80,17 +49,6 @@ let rec evalB e =
         | GreaterOrEqualExpr(x, y)  -> "(" + evalA x + ">=" + evalA y + ")"
         | LessThanExpr(x, y)        -> "(" + evalA x + "<" +  evalA y + ")"
         | LessOrEqualExpr(x, y)     -> "(" + evalA x + "<=" +  evalA y + ")"
-
-(*
-let rec evalC e =
-    match e with
-    | AssignExpr(str, a)            -> variablesArray@[(str, evalA a)]
-    | AssignToArrExpr(arr, a, b)    -> variablesArray
-    | SkipExpr                      -> variablesArray
-    | DoubleExpr(a, b)              -> evalC a@evalC b
-    | IfExpr(a)                     -> variablesArray
-    | DoExpr(a)                     -> variablesArray
-*)
 
 
 let rec evalC e =
@@ -217,9 +175,6 @@ let rec semB b =
 //let rec semC c
 
 
-type CommandLineOptions = {
-    typeTree: string
-    }
 
 let parseCommandLine args e =
     match args with
@@ -227,12 +182,6 @@ let parseCommandLine args e =
     
     | "d" -> printList (edgesCd "▷" "◀" e)
 
-let rec readlines () = seq {
-    let line = Console.ReadLine()
-    if line <> null then
-        yield line
-        yield! readlines ()
-}
 
 // We implement here the function that interacts with the user
 let rec compute n =
@@ -243,11 +192,7 @@ let rec compute n =
         let a = Console.ReadLine()
         printf "Enter an arithmetic expression: "
         try
-        // We parse the input string
-
         let e = parse (Console.ReadLine())
-        // and print the result of evaluating it
-        //printfn "Result: %s" (edgesC 0 -1 e)
         printfn "digraph program_graph {rankdir=LR;
         node [shape = circle]; q▷;
         node [shape = doublecircle]; q◀; 
