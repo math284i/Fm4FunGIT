@@ -184,6 +184,38 @@ let rec interpreter n =
         with err -> printfn "some value(s) are not valid"
                     interpreter (n-1)
 
+let dom = Map<string,int>[]
+
+let rec semA a =
+    match a with
+    | Var(x) when Map.containsKey x dom -> Map.find x dom
+    | Num(x) -> x
+    | AddExpr(x,y) -> semA x + semA y
+    | MinusExpr(x,y) -> semA x - semA y
+    | MultExpr(x,y) -> semA x * semA y
+    | PowExpr(x,y) -> pown (semA x) (semA y)
+    | _ -> //TODO
+
+
+let rec semB b =
+    match b with
+    | True -> true
+    | False -> false
+    | EqualExpr(x,y) -> x=y
+    | NotEqualExpr(x,y) -> not x=y
+    | GreaterThanExpr(x,y) -> x>y
+    | GreaterOrEqualExpr(x,y) -> x>=y
+    | LessThanExpr(x,y) -> x<y
+    | LessOrEqualExpr(x,y) -> x<=y
+    | AndExpr(x,y) -> semB x &&& semB y
+    | OrExpr(x,y) -> semB x ||| semB y
+    | ScAndExpr(x,y) -> semB x && semB y
+    | ScOrExpr(x,y) -> semB x || semB y
+    | NotExpr(x) -> not semB x
+    | _ -> //TODO
+
+//let rec semC c
+
 
 type CommandLineOptions = {
     typeTree: string
