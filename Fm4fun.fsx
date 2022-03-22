@@ -145,7 +145,7 @@ let rec interpreter n =
         with err -> printfn "some value(s) are not valid"
                     interpreter (n-1)
 
-let dom = Map<string,int>[]
+let mutable dom = Map<string,int>[]
 
 let rec semA a =
     match a with
@@ -186,14 +186,12 @@ let rec semB b =
 
 let rec semC c =
     match c with
-    | AssignExpr(x, y) -> true
+    | AssignExpr(x, y) when Map.containsKey x dom -> dom <- Map.add x (semA y) dom
     | AssignToArrExpr(x, y, z) -> true
-    | SkipExpr  -> true
+    | SkipExpr  -> c
     | DoubleExpr(x, y) -> true
     | IfExpr(x) -> true
     | DoExpr(x) -> true
-
-
 
 
 let parseCommandLine args e =
