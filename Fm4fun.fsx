@@ -1,3 +1,5 @@
+open System.Reflection.Metadata.LocalScopeHandleCollection
+
 #r "FsLexYacc.Runtime.10.0.0/lib/net46/FsLexYacc.Runtime.dll"
 open FSharp.Text.Lexing
 open System
@@ -15,8 +17,16 @@ let mutable globalQ = 0
 
 let mutable currentNode = "▷"
 
+type commando =
+    | C of Cexpr
+    | GC of GuardedExpr
+    
+let mutable programGraph = Map<string,Set<commando*string>>[];
 let mutable status = "Terminated"
 let mutable lastNode = "▷"
+
+let addToProgramGraph q1 c q2 =
+    printf "christian sej"
 
 
 let rec variableHelper str arr =
@@ -67,8 +77,8 @@ and evalGC e =
         | ArrowExpr(b, c)       -> evalB b + "->" + evalC c
         | AlsoExpr(a, b)        -> evalGC a + " [] " + evalGC b
 
-let rec doneGC GC =
-    match (GC) with
+let rec doneGC gc =
+    match (gc) with
     | ArrowExpr (b, c)  -> NotExpr b
     | AlsoExpr (a, b)   -> AndExpr (doneGC a, doneGC b)
 
@@ -167,12 +177,12 @@ let rec semB b =
     match b with
     | True -> true
     | False -> false
-    | EqualExpr(x,y) -> x=y
-    | NotEqualExpr(x,y) -> not (x=y)
-    | GreaterThanExpr(x,y) -> x>y
-    | GreaterOrEqualExpr(x,y) -> x>=y
-    | LessThanExpr(x,y) -> x<y
-    | LessOrEqualExpr(x,y) -> x<=y
+    | EqualExpr(x,y) -> semA x = semA y 
+    | NotEqualExpr(x,y) -> not (semA x = semA y)
+    | GreaterThanExpr(x,y) -> semA x > semA y
+    | GreaterOrEqualExpr(x,y) -> semA x >= semA y
+    | LessThanExpr(x,y) -> semA x < semA y
+    | LessOrEqualExpr(x,y) -> semA x <= semA y
     | AndExpr(x,y) -> let a = semB x
                       let b = semB y
                       a && b
@@ -183,18 +193,23 @@ let rec semB b =
     | ScOrExpr(x,y) -> semB x || semB y
     | NotExpr(x) -> not (semB x)
 
+let rec semGC gc =
+    match gc with
+    | ArrowExpr(b, c) -> semB b
+    | AlsoExpr(x, y)  -> failwith("Can't evaluate Also!")
 
-let rec semC c =
+and semC c =
     match c with
     | AssignExpr(x, y) when Map.containsKey x dom -> dom <- Map.add x (semA y) dom
-    | AssignToArrExpr(x, y, z) -> c
-    | SkipExpr  -> c
-    | DoubleExpr(x, y) -> c
-    | IfExpr(x) -> c
-    | DoExpr(x) -> c
+                                                     true
+    | AssignToArrExpr(x, y, z) -> true //TODO
+    | SkipExpr  -> true
+    | DoubleExpr(x, y) -> failwith("Can't evaluate Double!")
+    | IfExpr(x) -> semGC x
+    | DoExpr(x) -> semGC x
     | x -> status = "Stuck"
            printfn "Undefined: %s", evalC x
-           0
+           false
     
 
 
@@ -204,6 +219,8 @@ let parseCommandLine args e =
     
     | "d" -> printList (edgesCd "▷" "◀" e)
 
+
+let rec evaluateProgramGraph //TODO
 
 // We implement here the function that interacts with the user
 let rec compute n =
