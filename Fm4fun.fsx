@@ -151,8 +151,10 @@ let rec semA a =
     | AddExpr(x,y) -> semA x + semA y
     | MinusExpr(x,y) -> semA x - semA y
     | MultExpr(x,y) -> semA x * semA y
+    | DivExpr(x, y) -> semA x / semA y
+    | UMinusExpr(x) -> semA x
     | PowExpr(x,y) -> pown (semA x) (semA y)
-    | _ -> //TODO
+    | ArrEntry(x, y) -> 0 //TODO
 
 
 let rec semB b =
@@ -160,7 +162,7 @@ let rec semB b =
     | True -> true
     | False -> false
     | EqualExpr(x,y) -> x=y
-    | NotEqualExpr(x,y) -> not x=y
+    | NotEqualExpr(x,y) -> not (x=y)
     | GreaterThanExpr(x,y) -> x>y
     | GreaterOrEqualExpr(x,y) -> x>=y
     | LessThanExpr(x,y) -> x<y
