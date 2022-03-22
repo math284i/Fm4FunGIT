@@ -219,6 +219,13 @@ let parseCommandLine args e =
     
     | "d" -> printList (edgesCd "▷" "◀" e)
 
+let printerT3 stat last map =
+    printfn "status: %s" stat
+    printfn "Final Node: %s" lastNode
+    let result = Map.fold (fun state key value -> key + ":" + value + "\n") "" map
+    //Alternativt (Hvis den øverste ikke virker):
+    //Map.fold (fun state key value -> printfn "%s: %i" key value) () map
+    printfn "%s" result
 
 let rec evaluateProgramGraph //TODO
 
