@@ -171,7 +171,7 @@ let rec semB b =
     | OrExpr(x,y) -> semB x ||| semB y
     | ScAndExpr(x,y) -> semB x && semB y
     | ScOrExpr(x,y) -> semB x || semB y
-    | NotExpr(x) -> not semB x
+    | NotExpr(x) -> not (semB x)
     | _ -> //TODO
 
 //let rec semC c
