@@ -167,8 +167,12 @@ let rec semB b =
     | GreaterOrEqualExpr(x,y) -> x>=y
     | LessThanExpr(x,y) -> x<y
     | LessOrEqualExpr(x,y) -> x<=y
-    | AndExpr(x,y) -> semB x &&& semB y
-    | OrExpr(x,y) -> semB x ||| semB y
+    | AndExpr(x,y) -> let a = semB x
+                      let b = semB y
+                      a && b
+    | OrExpr(x,y) -> let a = semB x
+                     let b = semB y
+                     a || b
     | ScAndExpr(x,y) -> semB x && semB y
     | ScOrExpr(x,y) -> semB x || semB y
     | NotExpr(x) -> not (semB x)
