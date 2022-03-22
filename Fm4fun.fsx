@@ -12,6 +12,9 @@ open Fm4FunLexer
 //Global stuff
 let variablesArray = []
 let mutable globalQ = 0
+
+let mutable currentNode = "▷"
+
 let mutable status = "Terminated"
 let mutable lastNode = "▷"
 
@@ -151,10 +154,13 @@ let rec semA a =
     | AddExpr(x,y) -> semA x + semA y
     | MinusExpr(x,y) -> semA x - semA y
     | MultExpr(x,y) -> semA x * semA y
-    | DivExpr(x, y) -> semA x / semA y
+    | DivExpr(x, y) when semA y <> 0 -> semA x / semA y
     | UMinusExpr(x) -> semA x
     | PowExpr(x,y) -> pown (semA x) (semA y)
     | ArrEntry(x, y) -> 0 //TODO
+    | x -> status = "Stuck"
+           printfn "Undefined: %s", evalA x
+           0
 
 
 let rec semB b =
@@ -172,9 +178,17 @@ let rec semB b =
     | ScAndExpr(x,y) -> semB x && semB y
     | ScOrExpr(x,y) -> semB x || semB y
     | NotExpr(x) -> not (semB x)
-    | _ -> //TODO
 
-//let rec semC c
+
+let rec semC c =
+    match c with
+    | AssignExpr(x, y) -> true
+    | AssignToArrExpr(x, y, z) -> true
+    | SkipExpr  -> true
+    | DoubleExpr(x, y) -> true
+    | IfExpr(x) -> true
+    | DoExpr(x) -> true
+
 
 
 
