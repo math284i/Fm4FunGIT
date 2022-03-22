@@ -187,11 +187,15 @@ let rec semB b =
 let rec semC c =
     match c with
     | AssignExpr(x, y) when Map.containsKey x dom -> dom <- Map.add x (semA y) dom
-    | AssignToArrExpr(x, y, z) -> true
+    | AssignToArrExpr(x, y, z) -> c
     | SkipExpr  -> c
-    | DoubleExpr(x, y) -> true
-    | IfExpr(x) -> true
-    | DoExpr(x) -> true
+    | DoubleExpr(x, y) -> c
+    | IfExpr(x) -> c
+    | DoExpr(x) -> c
+    | x -> status = "Stuck"
+           printfn "Undefined: %s", evalC x
+           0
+    
 
 
 let parseCommandLine args e =
