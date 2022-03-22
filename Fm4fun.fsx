@@ -105,9 +105,12 @@ and edgesGCn q1 q2 commando =
 
 let rec edgesCd q1 q2 commando =
     match (commando) with
-    | AssignExpr (x,y)          -> (q1, evalC (AssignExpr (x, y)), q2)::[]
-    | AssignToArrExpr (x,a,b)   -> (q1, evalC (AssignToArrExpr (x, a, b)), q2)::[]
-    | SkipExpr                  -> (q1, evalC SkipExpr, q2)::[]
+    | AssignExpr (x,y)          -> addToProgramGraph q1 (evalC (AssignExpr (x, y))) q2
+                                   (q1, evalC (AssignExpr (x, y)), q2)::[]
+    | AssignToArrExpr (x,a,b)   -> addToProgramGraph q1 (evalC (AssignToArrExpr (x, a, b))) q2
+                                   (q1, evalC (AssignToArrExpr (x, a, b)), q2)::[]
+    | SkipExpr                  -> addToProgramGraph q1 (evalC SkipExpr) q2
+                                   (q1, evalC SkipExpr, q2)::[]
     | DoubleExpr (x, y)         -> globalQ <- globalQ + 1
                                    let E1 = edgesCd q1 (globalQ.ToString()) x
                                    let E2 = edgesCd (globalQ.ToString()) q2 y
