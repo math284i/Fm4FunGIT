@@ -225,29 +225,33 @@ let parseCommandLine args e =
 let printerT3 stat last map =
     printfn "status: %s" stat
     printfn "Final Node: %s" lastNode
-    let result = Map.fold (fun state key value -> key + ":" + value + "\n") "" map
+    let result = Map.fold (fun state key value -> key + ":" + string value + "\n") "" map
     //Alternativt (Hvis den øverste ikke virker):
     //Map.fold (fun state key value -> printfn "%s: %i" key value) () map
     printfn "%s" result
 
 let rec evaluateProgramGraph //TODO
 
+let rec getInput str =
+    printf str
+    let input = Console.ReadLine()
+    if input <> "no" then
+        let key:string = string input[0]
+        let value:int = int input[3]
+        dom <- Map.add key value dom
+        getInput str
+
 // We implement here the function that interacts with the user
 let rec compute n =
     if n = 0 then
         printfn "Bye bye"
     else
-        printf "Enter n for non and d for determenistic: "
-        let a = Console.ReadLine()
-        printf "Enter an arithmetic expression: "
+        getInput "Enter a variable (x:=y) or no to continue: "
+        printfn "Enter an expression: "
         try
         let e = parse (Console.ReadLine())
-        printfn "digraph program_graph {rankdir=LR;
-        node [shape = circle]; q▷;
-        node [shape = doublecircle]; q◀; 
-        node [shape = circle]"
-        parseCommandLine a e
-        printfn "}"
+        semC e
+        printerT3 status lastNode dom
         compute n
         with err -> printfn "Not a valid language"
                     compute (n-1)
