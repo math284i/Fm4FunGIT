@@ -76,88 +76,7 @@ and evalGC e =
     match e with
         | ArrowExpr(b, c)       -> evalB b + "->" + evalC c
         | AlsoExpr(a, b)        -> evalGC a + " [] " + evalGC b
-
-let rec doneGC gc =
-    match (gc) with
-    | ArrowExpr (b, c)  -> NotExpr b
-    | AlsoExpr (a, b)   -> AndExpr (doneGC a, doneGC b)
-
-let rec edgesCn q1 q2 commando =
-    match (commando) with
-    | AssignExpr (x,y)          -> (q1, evalC (AssignExpr (x, y)), q2)::[]
-    | AssignToArrExpr (x,a,b)   -> (q1, evalC (AssignToArrExpr (x, a, b)), q2)::[]
-    | SkipExpr                  -> (q1, evalC SkipExpr, q2)::[]
-    | DoubleExpr (x, y)         -> globalQ <- globalQ + 1
-                                   let E1 = edgesCn q1 (globalQ.ToString()) x
-                                   let E2 = edgesCn (globalQ.ToString()) q2 y
-                                   E1 @ E2
-    | IfExpr (a)                -> edgesGCn q1 q2 a
-    | DoExpr (a)                -> let b = doneGC a
-                                   (q1, evalB b , q2)::edgesGCn q1 q1 a
-    
-and edgesGCn q1 q2 commando =
-    match (commando) with
-    | ArrowExpr (b, c)          -> globalQ <- globalQ + 1
-                                   (q1, evalB b, (globalQ.ToString()))::edgesCn (globalQ.ToString()) q2 c
-    | AlsoExpr (g1, g2)          -> let E1 = edgesGCn q1 q2 g1
-                                    let E2 = edgesGCn q1 q2 g2
-                                    E1 @ E2
-
-let rec edgesCd q1 q2 commando =
-    match (commando) with
-    | AssignExpr (x,y)          -> addToProgramGraph q1 (evalC (AssignExpr (x, y))) q2
-                                   (q1, evalC (AssignExpr (x, y)), q2)::[]
-    | AssignToArrExpr (x,a,b)   -> addToProgramGraph q1 (evalC (AssignToArrExpr (x, a, b))) q2
-                                   (q1, evalC (AssignToArrExpr (x, a, b)), q2)::[]
-    | SkipExpr                  -> addToProgramGraph q1 (evalC SkipExpr) q2
-                                   (q1, evalC SkipExpr, q2)::[]
-    | DoubleExpr (x, y)         -> globalQ <- globalQ + 1
-                                   let E1 = edgesCd q1 (globalQ.ToString()) x
-                                   let E2 = edgesCd (globalQ.ToString()) q2 y
-                                   E1 @ E2
-    | IfExpr (a)                -> let (E,d) = edgesGCd q1 q2 a False
-                                   E
-    | DoExpr (a)                -> let b = doneGC a
-                                   let (E,d) = edgesGCd q1 q1 a False
-                                   E@(q1, evalB (NotExpr d), q2)::[]
-and edgesGCd q1 q2 commando d =
-    match (commando) with
-    | ArrowExpr (b, c)          -> globalQ <- globalQ + 1
-                                   ((q1, evalB (AndExpr(b, NotExpr d)), (globalQ.ToString()))::edgesCd (globalQ.ToString()) q2 c, OrExpr(b,d))
-    | AlsoExpr (g1, g2)         -> let (E1,d1) = edgesGCd q1 q2 g1 d
-                                   let (E2,d2) = edgesGCd q1 q2 g2 d1
-                                   (E1 @ E2, d2)
-
-
-let parse input =
-    // translate string into a buffer of characters
-    let lexbuf = LexBuffer<char>.FromString input
-    // translate the buffer into a stream of tokens and parse them
-    let res = Fm4FunParser.start Fm4FunLexer.tokenize lexbuf
-    // return the result of parsing (i.e. value of type "expr")
-    res
-
-let rec printList = function
-    | []            -> ""
-    | (a,b,c)::xy         -> printfn "q%s -> q%s[label = \"%s\"];" a c b
-                             printList xy
-
-//printing the step-wise evaluation to the console
-let rec printGCL = function
-    | [] -> ""
-    //| //<-- put stuff here
-
-
-//We implement here the interpreter for the GCL
-let rec interpreter n =
-    printf "Enter initial values: "
-    try
-        let e = parse (Console.ReadLine())
-        //printGCL //<-- put stuff here
-        interpreter n
-        with err -> printfn "some value(s) are not valid"
-                    interpreter (n-1)
-
+        
 let mutable dom = Map<string,int>[]
 
 let rec semA a =
@@ -212,7 +131,94 @@ and semC c =
     | DoExpr(x) -> semGC x
     | x -> status = "Stuck"
            printfn "Undefined: %s", evalC x
-           false
+           false        
+        
+
+let rec doneGC gc =
+    match (gc) with
+    | ArrowExpr (b, c)  -> NotExpr b
+    | AlsoExpr (a, b)   -> AndExpr (doneGC a, doneGC b)
+
+let rec edgesCn q1 q2 commando =
+    match (commando) with
+    | AssignExpr (x,y)          -> (q1, evalC (AssignExpr (x, y)), q2)::[]
+    | AssignToArrExpr (x,a,b)   -> (q1, evalC (AssignToArrExpr (x, a, b)), q2)::[]
+    | SkipExpr                  -> (q1, evalC SkipExpr, q2)::[]
+    | DoubleExpr (x, y)         -> globalQ <- globalQ + 1
+                                   let E1 = edgesCn q1 (globalQ.ToString()) x
+                                   let E2 = edgesCn (globalQ.ToString()) q2 y
+                                   E1 @ E2
+    | IfExpr (a)                -> edgesGCn q1 q2 a
+    | DoExpr (a)                -> let b = doneGC a
+                                   (q1, evalB b , q2)::edgesGCn q1 q1 a
+    
+and edgesGCn q1 q2 commando =
+    match (commando) with
+    | ArrowExpr (b, c)          -> globalQ <- globalQ + 1
+                                   (q1, evalB b, (globalQ.ToString()))::edgesCn (globalQ.ToString()) q2 c
+    | AlsoExpr (g1, g2)          -> let E1 = edgesGCn q1 q2 g1
+                                    let E2 = edgesGCn q1 q2 g2
+                                    E1 @ E2
+
+let rec edgesCd q1 q2 commando =
+    match (commando) with
+    | AssignExpr (x,y)          -> addToProgramGraph q1 (semC (AssignExpr (x, y))) q2
+                                   (q1, evalC (AssignExpr (x, y)), q2)::[]
+    | AssignToArrExpr (x,a,b)   -> addToProgramGraph q1 (semC (AssignToArrExpr (x, a, b))) q2
+                                   (q1, evalC (AssignToArrExpr (x, a, b)), q2)::[]
+    | SkipExpr                  -> addToProgramGraph q1 (semC SkipExpr) q2
+                                   (q1, evalC SkipExpr, q2)::[]
+    | DoubleExpr (x, y)         -> globalQ <- globalQ + 1
+                                   let E1 = edgesCd q1 (globalQ.ToString()) x
+                                   let E2 = edgesCd (globalQ.ToString()) q2 y
+                                   E1 @ E2
+    | IfExpr (a)                -> let (E,d) = edgesGCd q1 q2 a False
+                                   E
+    | DoExpr (a)                -> let b = doneGC a
+                                   let (E,d) = edgesGCd q1 q1 a False
+                                   addToProgramGraph q1 ( semB (NotExpr d)) q2
+                                   E@(q1, evalB (NotExpr d), q2)::[]
+                                 
+and edgesGCd q1 q2 commando d =
+    match (commando) with
+    | ArrowExpr (b, c)          -> globalQ <- globalQ + 1
+                                   addToProgramGraph q1 (semB (AndExpr(b, NotExpr d))) (globalQ.ToString())
+                                   ((q1, evalB (AndExpr(b, NotExpr d)), (globalQ.ToString()))::edgesCd (globalQ.ToString()) q2 c, OrExpr(b,d))
+    | AlsoExpr (g1, g2)         -> let (E1,d1) = edgesGCd q1 q2 g1 d
+                                   let (E2,d2) = edgesGCd q1 q2 g2 d1
+                                   (E1 @ E2, d2)
+
+
+let parse input =
+    // translate string into a buffer of characters
+    let lexbuf = LexBuffer<char>.FromString input
+    // translate the buffer into a stream of tokens and parse them
+    let res = Fm4FunParser.start Fm4FunLexer.tokenize lexbuf
+    // return the result of parsing (i.e. value of type "expr")
+    res
+
+let rec printList = function
+    | []            -> ""
+    | (a,b,c)::xy         -> printfn "q%s -> q%s[label = \"%s\"];" a c b
+                             printList xy
+
+//printing the step-wise evaluation to the console
+let rec printGCL = function
+    | [] -> ""
+    //| //<-- put stuff here
+
+
+//We implement here the interpreter for the GCL
+let rec interpreter n =
+    printf "Enter initial values: "
+    try
+        let e = parse (Console.ReadLine())
+        //printGCL //<-- put stuff here
+        interpreter n
+        with err -> printfn "some value(s) are not valid"
+                    interpreter (n-1)
+
+
     
 
 
@@ -230,7 +236,7 @@ let printerT3 stat last map =
     //Map.fold (fun state key value -> printfn "%s: %i" key value) () map
     printfn "%s" result
 
-let rec evaluateProgramGraph //TODO
+//let rec evaluateProgramGraph //TODO
 
 let rec getInput str =
     printf str
