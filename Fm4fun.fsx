@@ -220,8 +220,6 @@ let rec interpreter n =
 
 
     
-
-
 let parseCommandLine args e =
     match args with
     | "n" -> printList (edgesCn "▷" "◀" e)
