@@ -1,5 +1,3 @@
-open System.Reflection.Metadata.LocalScopeHandleCollection
-
 #r "FsLexYacc.Runtime.10.0.0/lib/net46/FsLexYacc.Runtime.dll"
 open FSharp.Text.Lexing
 open System
@@ -94,8 +92,7 @@ let rec semA a =
     | UMinusExpr(x) -> semA x
     | PowExpr(x,y) -> pown (semA x) (semA y)
     | ArrEntry(x, y) -> 0 //TODO
-    | x -> status = "Stuck"
-           printfn "Undefined: %s", evalA x
+    | _ -> status <- "Stuck"
            0
 
 
@@ -133,8 +130,7 @@ and semC c =
     | DoubleExpr(x, y) -> failwith("Can't evaluate Double!")
     | IfExpr(x) -> semGC x
     | DoExpr(x) -> semGC x
-    | x -> status = "Stuck"
-           printfn "Undefined: %s", evalC x
+    | x -> status <- "Stuck"
            false        
         
 
@@ -206,23 +202,6 @@ let rec printList = function
     | (a,b,c)::xy         -> printfn "q%s -> q%s[label = \"%s\"];" a c b
                              printList xy
 
-//printing the step-wise evaluation to the console
-let rec printGCL = function
-    | [] -> ""
-    //| //<-- put stuff here
-
-
-//We implement here the interpreter for the GCL
-let rec interpreter n =
-    printf "Enter initial values: "
-    try
-        let e = parse (Console.ReadLine())
-        //printGCL //<-- put stuff here
-        interpreter n
-        with err -> printfn "some value(s) are not valid"
-                    interpreter (n-1)
-
-
     
 let parseCommandLine args e =
     match args with
@@ -230,10 +209,10 @@ let parseCommandLine args e =
     
     | "d" -> printList (edgesCd "▷" "◀" e)
 
-let printerT3 stat last map =
+let printerT3 stat map =
     printfn "status: %s" stat
     printfn "Final Node: %s" lastNode
-    let result = Map.fold (fun state key value -> key + ":" + string value + "\n") "" map
+    let result = Map.fold (fun state key value -> state + key + ":" + string value + "\n") "" map
     //Alternativt (Hvis den øverste ikke virker):
     //Map.fold (fun state key value -> printfn "%s: %i" key value) () map
     printfn "%s" result
@@ -254,8 +233,8 @@ let rec getInput str =
     printf str
     let input = Console.ReadLine()
     if input <> "no" then
-        let key:string = string (input[0])
-        let value:int = int input[3]
+        let key:string = string input[0]
+        let value:int = int input[3] - int '0'
         dom <- Map.add key value dom
         getInput str
 
@@ -265,11 +244,11 @@ let rec compute n =
         printfn "Bye bye"
     else
         getInput "Enter a variable (x:=y) or no to continue: "
-        printfn "Enter an expression: "
+        printf "Enter an expression: "
         try
         let e = parse (Console.ReadLine())
         semC e
-        printerT3 status lastNode dom
+        printerT3 status dom
         compute n
         with err -> printfn "Not a valid language"
                     compute (n-1)
