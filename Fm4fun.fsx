@@ -26,7 +26,11 @@ let mutable status = "Terminated"
 let mutable lastNode = "▷"
 
 let addToProgramGraph q1 c q2 =
-    printf "christian sej"
+    if (Map.containsKey q1 programGraph) then
+                                         let a = Map.find q1 programGraph
+                                         let newSet = Set.add (c,q2) a
+                                         Map.add q1 newSet programGraph
+                                         else Map.add q1 (Set.empty.Add(c,q2)) programGraph
 
 
 let rec variableHelper str arr =
@@ -162,11 +166,11 @@ and edgesGCn q1 q2 commando =
 
 let rec edgesCd q1 q2 commando =
     match (commando) with
-    | AssignExpr (x,y)          -> addToProgramGraph q1 (semC (AssignExpr (x, y))) q2
+    | AssignExpr (x,y)          -> programGraph <- addToProgramGraph q1 (C (AssignExpr (x, y))) q2
                                    (q1, evalC (AssignExpr (x, y)), q2)::[]
-    | AssignToArrExpr (x,a,b)   -> addToProgramGraph q1 (semC (AssignToArrExpr (x, a, b))) q2
+    | AssignToArrExpr (x,a,b)   -> programGraph <- addToProgramGraph q1 (C (AssignToArrExpr (x, a, b))) q2
                                    (q1, evalC (AssignToArrExpr (x, a, b)), q2)::[]
-    | SkipExpr                  -> addToProgramGraph q1 (semC SkipExpr) q2
+    | SkipExpr                  -> programGraph <- addToProgramGraph q1 (C SkipExpr) q2
                                    (q1, evalC SkipExpr, q2)::[]
     | DoubleExpr (x, y)         -> globalQ <- globalQ + 1
                                    let E1 = edgesCd q1 (globalQ.ToString()) x
@@ -176,13 +180,13 @@ let rec edgesCd q1 q2 commando =
                                    E
     | DoExpr (a)                -> let b = doneGC a
                                    let (E,d) = edgesGCd q1 q1 a False
-                                   addToProgramGraph q1 ( semB (NotExpr d)) q2
+                                   //addToProgramGraph q1 ( semB (NotExpr d)) q2
                                    E@(q1, evalB (NotExpr d), q2)::[]
                                  
 and edgesGCd q1 q2 commando d =
     match (commando) with
     | ArrowExpr (b, c)          -> globalQ <- globalQ + 1
-                                   addToProgramGraph q1 (semB (AndExpr(b, NotExpr d))) (globalQ.ToString())
+                                   //addToProgramGraph q1 (semB (AndExpr(b, NotExpr d))) (globalQ.ToString())
                                    ((q1, evalB (AndExpr(b, NotExpr d)), (globalQ.ToString()))::edgesCd (globalQ.ToString()) q2 c, OrExpr(b,d))
     | AlsoExpr (g1, g2)         -> let (E1,d1) = edgesGCd q1 q2 g1 d
                                    let (E2,d2) = edgesGCd q1 q2 g2 d1
@@ -234,13 +238,23 @@ let printerT3 stat last map =
     //Map.fold (fun state key value -> printfn "%s: %i" key value) () map
     printfn "%s" result
 
-//let rec evaluateProgramGraph //TODO
+let rec evaluateProgramGraph node =
+    let set = Set.toList (Map.find node programGraph)
+    for item in set do
+        let (c, s) = item
+        match c with
+        | C(x)    -> if semC x then evaluateProgramGraph s else
+                                                               status <- "Stuck"
+                                                               lastNode <- node
+        | GC(x)   -> if semGC x then evaluateProgramGraph s else
+                                                               status <- "Stuck"
+                                                               lastNode <- node
 
 let rec getInput str =
     printf str
     let input = Console.ReadLine()
     if input <> "no" then
-        let key:string = string input[0]
+        let key:string = string (input[0])
         let value:int = int input[3]
         dom <- Map.add key value dom
         getInput str
