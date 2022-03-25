@@ -19,7 +19,9 @@ type commando =
     | C of Cexpr
     | GC of GuardedExpr
     
-let mutable programGraph = Map<string,Set<commando*string>>[];
+let mutable programGraph = Map<string,Set<commando*string>>[]
+let mutable coveringNodes: Set<string> = Set.ofList ["▷" ; "◀"]
+let mutable S: Set<string*commando List*string> = Set.empty
 let mutable status = "Terminated"
 let mutable lastNode = "▷"
 
@@ -150,6 +152,7 @@ let rec edgesCn q1 q2 commando =
                                    E1 @ E2
     | IfExpr (a)                -> edgesGCn q1 q2 a
     | DoExpr (a)                -> let b = doneGC a
+                                   coveringNodes <- Set.add q1 coveringNodes
                                    (q1, evalB b , q2)::edgesGCn q1 q1 a
     
 and edgesGCn q1 q2 commando =
@@ -176,7 +179,7 @@ let rec edgesCd q1 q2 commando =
                                    E
     | DoExpr (a)                -> let b = doneGC a
                                    let (E,d) = edgesGCd q1 q1 a False
-                                   //addToProgramGraph q1 ( semB (NotExpr d)) q2
+                                   coveringNodes <- Set.add q1 coveringNodes
                                    E@(q1, evalB (NotExpr d), q2)::[]
                                  
 and edgesGCd q1 q2 commando d =
@@ -211,7 +214,7 @@ let parseCommandLine args e =
 
 let printerT3 stat map =
     printfn "status: %s" stat
-    printfn "Final Node: %s" lastNode
+    printfn "Final Node: %s" currentNode
     let result = Map.fold (fun state key value -> state + key + ":" + string value + "\n") "" map
     //Alternativt (Hvis den øverste ikke virker):
     //Map.fold (fun state key value -> printfn "%s: %i" key value) () map
@@ -229,12 +232,20 @@ let rec evaluateProgramGraph node =
                                                                status <- "Stuck"
                                                                lastNode <- node
 
+
+let rec build q1 w q2 =
+    let set = Set.toList (Map.find q1 programGraph)
+    for (c,s) in set do
+        if (Set.contains s coveringNodes) then
+                                              S <- Set.add (q1, w, q2) S
+                                          else build q1 (c::w) s
+
 let rec getInput str =
     printf str
     let input = Console.ReadLine()
     if input <> "no" then
-        let key:string = string input[0]
-        let value:int = int input[3] - int '0'
+        let key:string = string (input.Chars 0)
+        let value:int = int (input.Chars 3) - int '0'
         dom <- Map.add key value dom
         getInput str
 
