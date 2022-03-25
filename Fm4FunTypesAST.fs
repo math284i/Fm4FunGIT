@@ -52,6 +52,5 @@ type Pexpr =
   | PAllExpr of (Eexpr*Pexpr)
   | PEqualExpr of (Eexpr*Eexpr)
 and Eexpr =
-  | CMem
-  | VMem
+  | Logical
   | EAdd of (Eexpr*Eexpr)

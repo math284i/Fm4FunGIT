@@ -98,18 +98,6 @@ bExpression:
     | aExpression LOE aExpression       { LessOrEqualExpr($1,$3) } //Less or equal
     | LPAR bExpression RPAR             { $2 }
 
-pExpression:
-    | TRUE                                  { True }
-    | pExpression PAND pExpression          { PAndExpr($1,$3) }
-    | pExpression POR pExpression           { POrExpr($1,$3) }
-    | NOT pExpression                       { PNotExpr($2) }
-    | pExpression IMPLY pExpression         { PImplyExpr($1,$3) }
-    | EXISTS eExpression COLON pExpression  { PExistsExpr($2,$4) }
-    | ALL eExpression COLON pExpression     { PAllExpr($2,$4) }
-    | eExpression EQUALS eExpression        { PEqualExpr($1,$3) }
-
-eExpression:
-    | 
 
 // Again, the code annotation specifies the result of parsing
 // For example { TimesExpr($1,$3) } specifies that parsing with the production
