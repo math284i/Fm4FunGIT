@@ -2,6 +2,8 @@
 // to store represent arithmetic expressions
 module Fm4FunTypesAST
 
+open System
+
 type Array = Aexpr List
 and Aexpr =
   | Num of int
@@ -39,3 +41,17 @@ type Cexpr =
 and GuardedExpr =
   | ArrowExpr of (Bexpr*Cexpr)
   | AlsoExpr of (GuardedExpr*GuardedExpr)
+
+type Pexpr =
+  | True
+  | PAndExpr of (Pexpr*Pexpr)
+  | POrExpr of (Pexpr*Pexpr)
+  | PNotExpr of Pexpr
+  | PImplyExpr of (Pexpr*Pexpr)
+  | PExistsExpr of (Eexpr*Pexpr)
+  | PAllExpr of (Eexpr*Pexpr)
+  | PEqualExpr of (Eexpr*Eexpr)
+and Eexpr =
+  | CMem
+  | VMem
+  | EAdd of (Eexpr*Eexpr)
