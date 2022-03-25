@@ -205,7 +205,19 @@ let rec printList = function
     | (a,b,c)::xy         -> printfn "q%s -> q%s[label = \"%s\"];" a c b
                              printList xy
 
-    
+let rec printS = function
+    | []            -> ""
+    | (q1, cl, q2)::xy -> printfn "q%s" q1 printCommando cl printf "q%s" q2
+                          printS xy
+and printCommando = function
+    | []             -> ""
+    | x::xy          -> printf "%s" x
+                        printCommando xy
+
+let rec printCoveringNodes = function
+    | []            -> ""
+    | x::xy         -> printfn "%s" x
+                       printCoveringNodes xy
 let parseCommandLine args e =
     match args with
     | "n" -> printList (edgesCn "▷" "◀" e)
@@ -254,15 +266,21 @@ let rec compute n =
     if n = 0 then
         printfn "Bye bye"
     else
-        getInput "Enter a variable (x:=y) or no to continue: "
+        //getInput "Enter a variable (x:=y) or no to continue: "
         printf "Enter an expression: "
-        try
+        //try
         let e = parse (Console.ReadLine())
-        semC e
-        printerT3 status dom
+        //semC e
+        //printerT3 status dom
+        parseCommandLine "d" e
+        printfn "Building: "
+        build "▷" List.empty "▷"
+        printS (Set.toList S)
+        printCoveringNodes (Set.toList coveringNodes)
+        printfn "Builded!"
         compute n
-        with err -> printfn "Not a valid language"
-                    compute (n-1)
+        //with err -> printfn "Not a valid language"
+        //            compute (n-1)
         
 
 // Start interacting with the user
