@@ -207,10 +207,12 @@ let rec printList = function
 
 let rec printS = function
     | []            -> ""
-    | (q1, cl, q2)::xy -> printfn "q%s" q1 printCommando cl printf "q%s" q2
+    | (q1, cl, q2)::xy -> printfn "q%s" q1
+                          printCommando cl
+                          printf "q%s" q2
                           printS xy
 and printCommando = function
-    | []             -> ""
+    | []             -> printf ""
     | x::xy          -> printf "%s" x
                         printCommando xy
 
@@ -243,7 +245,6 @@ let rec evaluateProgramGraph node =
         | GC(x)   -> if semGC x then evaluateProgramGraph s else
                                                                status <- "Stuck"
                                                                lastNode <- node
-
 
 let rec build q1 w q2 =
     let set = Set.toList (Map.find q1 programGraph)
