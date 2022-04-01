@@ -205,7 +205,8 @@ let rec printList = function
     | (a,b,c)::xy         -> printfn "q%s -> q%s[label = \"%s\"];" a c b
                              printList xy
 
-let rec printS = function
+let rec printS (e:(string*commando List*string)List) =
+    match e with
     | []            -> ""
     | (q1, cl, q2)::xy -> printfn "q%s" q1
                           printCommando cl
@@ -213,7 +214,7 @@ let rec printS = function
                           printS xy
 and printCommando = function
     | []             -> printf ""
-    | x::xy          -> printf "%s" x
+    | x::xy          -> printf "%s" (x.ToString())
                         printCommando xy
 
 let rec printCoveringNodes = function
