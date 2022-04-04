@@ -208,9 +208,9 @@ let rec printList = function
 let rec printS (e:(string*commando List*string)List) =
     match e with
     | []            -> ""
-    | (q1, cl, q2)::xy -> printfn "q%s" q1
-                          printCommando cl
-                          printf "q%s" q2
+    | (q1, cl, q2)::xy -> printfn "q%s Q1" q1
+                          printfn "%s" (cl.ToString())
+                          printfn "q%s" q2
                           printS xy
 and printCommando = function
     | []             -> printf ""
@@ -278,7 +278,7 @@ let rec compute n =
         printfn "Building: "
         build "▷" List.empty "▷"
         printS (Set.toList S)
-        printCoveringNodes (Set.toList coveringNodes)
+        //printCoveringNodes (Set.toList coveringNodes)
         printfn "Builded!"
         compute n
         //with err -> printfn "Not a valid language"
